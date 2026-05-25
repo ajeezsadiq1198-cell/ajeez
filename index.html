@@ -10,7 +10,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -22,21 +21,6 @@
   --shadow:0 1px 4px rgba(0,0,0,0.08);--shadow-md:0 4px 16px rgba(0,0,0,0.12);
 }
 html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;}
-
-/* LOGIN SCREEN */
-#loginScreen{position:fixed;inset:0;background:linear-gradient(160deg,#1e40af 0%,#2563eb 60%,#3b82f6 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity 0.5s,visibility 0.5s;padding:2rem;}
-#loginScreen.hide{opacity:0;visibility:hidden;pointer-events:none;}
-.login-card{background:#fff;border-radius:24px;padding:2rem 1.5rem;width:100%;max-width:340px;box-shadow:0 12px 48px rgba(0,0,0,0.22);text-align:center;}
-.login-icon{font-size:2.8rem;margin-bottom:0.8rem;}
-.login-title{font-size:1.3rem;font-weight:800;color:#111827;margin-bottom:0.3rem;}
-.login-sub{font-size:0.78rem;color:#6b7280;margin-bottom:1.8rem;line-height:1.5;}
-.google-btn{width:100%;padding:0.85rem;border:2px solid #e2e5ed;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;gap:12px;font-size:0.92rem;font-weight:600;color:#374151;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;}
-.google-btn:hover{border-color:#2563eb;background:#eff4ff;}
-.google-btn:active{transform:scale(0.97);}
-.google-btn svg{width:22px;height:22px;flex-shrink:0;}
-.login-status{font-size:0.75rem;color:#6b7280;margin-top:1.2rem;min-height:1.2em;}
-.login-status.error{color:#dc2626;}
-.login-footer{margin-top:1.5rem;font-size:0.65rem;color:rgba(255,255,255,0.6);text-align:center;}
 
 /* SPLASH */
 #splash{position:fixed;inset:0;background:#2563eb;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s,visibility 0.5s;}
@@ -288,26 +272,6 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
 </head>
 <body>
 
-<!-- GOOGLE LOGIN SCREEN -->
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="login-icon">💰</div>
-    <div class="login-title">Expense Tracker</div>
-    <div class="login-sub">உங்கள் Google account-ல் login பண்ணுங்க.<br/>எல்லா device-லயும் data sync ஆகும்!</div>
-    <button class="google-btn" onclick="signInWithGoogle()">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-      </svg>
-      Google-ல் Sign In பண்ணுங்க
-    </button>
-    <div class="login-status" id="loginStatusMsg"></div>
-  </div>
-  <div class="login-footer">Created by ABDUL AJEEZ • உங்கள் data பாதுகாப்பாக சேமிக்கப்படும்</div>
-</div>
-
 <div id="splash">
   <div class="splash-icon">💰</div>
   <div class="splash-name">Expense Tracker</div>
@@ -360,9 +324,6 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
       <div class="drawer-divider"></div>
       <div class="drawer-item" onclick="closeProfile();downloadReportImage()"><span class="di">🖼️</span>Download Report Image</div>
       <div class="drawer-item" onclick="closeProfile();shareReportText()"><span class="di">📤</span>Share Report (WhatsApp)</div>
-      <div class="drawer-divider"></div>
-      <div class="drawer-item" id="drawerEmailRow" style="font-size:0.75rem;color:#6b7280;cursor:default;"><span class="di">✉️</span><span id="drawerEmailText">Loading...</span></div>
-      <div class="drawer-item" onclick="signOut()" style="color:#dc2626;"><span class="di">🚪</span>Logout</div>
     </div>
   </div>
 </div>
@@ -470,7 +431,10 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
           <span class="out-total-label">Total Outstanding</span>
           <span class="out-total-val" id="outTotalVal">₹0</span>
         </div>
-        <button class="out-share-btn" onclick="shareOutstanding()">📤 Share Outstanding List</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <button class="out-share-btn" onclick="shareOutstanding()">📤 WhatsApp Text</button>
+          <button class="out-share-btn" onclick="shareOutstandingImage()" style="background:#1d4ed8;">🖼️ Image Share</button>
+        </div>
       </div>
     </div>
   </div>
@@ -576,7 +540,7 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
     <button class="tab-btn" id="tab-task" onclick="switchTab('task')"><span class="ticon">📊</span>Task</button>
     <button class="tab-btn" id="tab-docs" onclick="switchTab('docs')"><span class="ticon">📁</span>Docs</button>
     <button class="tab-btn" id="tab-bank" onclick="switchTab('bank')"><span class="ticon">🏦</span>Bank</button>
-    <button class="tab-btn" id="tab-settings" onclick="switchTab('settings')"><span class="ticon">⚙️</span>Settings</button>
+    <button class="tab-btn" id="tab-outstanding" onclick="switchTab('outstanding')"><span class="ticon">🔔</span>Outstanding</button>
   </nav>
 </div>
 
@@ -585,7 +549,7 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
 
 <script>
 // ============================================================
-// FIREBASE INIT — Google Sign-In Auth
+// FIREBASE INIT (No Auth — Phone Number as User ID)
 // ============================================================
 const firebaseConfig = {
   apiKey: "AIzaSyBEiRyAKnV907tkquTRfh3fxnzoIy3Jitc",
@@ -598,83 +562,44 @@ const firebaseConfig = {
 };
 
 let db = null;
-let auth = null;
-let currentUser = null;
 let syncTimeout = null;
+let userPhone = localStorage.getItem('exp_phone') || null;
 
+// Init Firebase DB only (no auth)
 try {
   firebase.initializeApp(firebaseConfig);
   db = firebase.database();
-  auth = firebase.auth();
 } catch(e) {}
 
-// ── Google Sign-In (Redirect — works in WebView & APK) ──
-function signInWithGoogle() {
-  const statusEl = document.getElementById('loginStatusMsg');
-  statusEl.textContent = '⏳ Google-க்கு redirect ஆகுது...';
-  statusEl.className = 'login-status';
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: 'select_account' });
-  auth.signInWithRedirect(provider).catch(err => {
-    statusEl.className = 'login-status error';
-    statusEl.textContent = '⚠️ Error: ' + err.message;
-  });
-}
+// PHONE NUMBER SETUP
+function startWithPhone() {
+  const phone = document.getElementById('phoneInput').value.trim();
+  const name = document.getElementById('nameInput').value.trim();
+  const statusEl = document.getElementById('loginStatus');
 
-// ── Handle redirect result on page load ──
-function handleRedirectResult() {
-  auth.getRedirectResult().then(result => {
-    // onAuthStateChanged will handle login state
-  }).catch(err => {
-    if (err.code && err.code !== 'auth/no-current-user') {
-      const statusEl = document.getElementById('loginStatusMsg');
-      if (statusEl) {
-        statusEl.className = 'login-status error';
-        statusEl.textContent = '⚠️ Login failed: ' + err.message;
-      }
-    }
-  });
-}
+  if (!phone || phone.length < 10) {
+    statusEl.style.color = '#dc2626';
+    statusEl.textContent = '⚠️ சரியான 10 digit phone number போடுங்க!';
+    return;
+  }
 
-// ── Auth State Listener ──
-let authHandled = false;
-window.addEventListener('DOMContentLoaded', function() {
-  handleRedirectResult();
-  auth.onAuthStateChanged(function(user) {
-    if (user) {
-      currentUser = user;
-      document.getElementById('loginScreen').classList.add('hide');
-      // Update profile from Google account
-      if (!profileData.name || profileData.name === 'My Name') {
-        profileData.name = user.displayName || 'My Name';
-      }
-      if (!profileData.pic && user.photoURL) {
-        profileData.pic = user.photoURL;
-      }
-      localStorage.setItem('exp_profile', JSON.stringify(profileData));
-      // Always skip splash after auth (redirect already took time)
-      sessionStorage.setItem('appReady', '1');
-      launchApp();
-      // Pull Firebase data immediately — no delay
-      pullData();
-    } else {
-      currentUser = null;
-      document.getElementById('loginScreen').classList.remove('hide');
-      document.getElementById('splash').classList.add('hide');
-    }
-  });
-});
+  const phoneId = 'phone_91' + phone;
+  localStorage.setItem('exp_phone', phoneId);
+  if (name) {
+    profileData.name = name;
+    localStorage.setItem('exp_profile', JSON.stringify(profileData));
+  }
+  userPhone = phoneId;
+  launchApp();
+  pullData();
+}
 
 function signOut() {
-  if (confirm('Logout பண்ணவா?')) {
-    closeProfile();
-    auth.signOut().then(() => {
-      // Don't clear localStorage — data safe-ஆ இருக்கும்
-      // Only clear session so splash won't show on next login
-      sessionStorage.removeItem('appReady');
-      location.reload();
-    });
+  if(confirm('Data clear பண்ணி வேற number-ல switch பண்ணவா?')) {
+    localStorage.removeItem('exp_phone');
+    location.reload();
   }
+  closeDrawer();
 }
 
 function setSyncStatus(status){
@@ -686,33 +611,26 @@ function setSyncStatus(status){
   else{dot.style.background='#dc2626';if(lbl)lbl.textContent='Offline';}
 }
 
-function getUserRef() {
-  if (!currentUser || !db) return null;
-  return db.ref('users/' + currentUser.uid + '/data');
-}
-
 function scheduleSync(){
-  if(!currentUser||!db)return;
+  if(!userPhone||!db)return;
   setSyncStatus('syncing');
   clearTimeout(syncTimeout);
   syncTimeout=setTimeout(pushAllData,1200);
 }
 
 function pushAllData(){
-  const ref = getUserRef();
-  if(!ref)return;
+  if(!userPhone||!db)return;
   const docsMeta=documents.map(d=>({id:d.id,name:d.name,size:d.size,type:d.type,added:d.added}));
   const payload={transactions,outstanding,weekly:weeklyData,prayer:prayerData,profile:profileData,docsMeta,lastSync:Date.now()};
-  ref.set(payload)
+  db.ref('users/'+userPhone+'/data').set(payload)
     .then(()=>setSyncStatus('synced'))
     .catch(()=>setSyncStatus('offline'));
 }
 
 function pullData(){
-  const ref = getUserRef();
-  if(!ref){renderAll();loadProfile();renderPdfBoxes();return;}
+  if(!userPhone||!db){renderAll();loadProfile();return;}
   setSyncStatus('syncing');
-  ref.once('value').then(snap=>{
+  db.ref('users/'+userPhone+'/data').once('value').then(snap=>{
     const d=snap.val();
     if(d){
       if(d.transactions)transactions=d.transactions;
@@ -725,8 +643,8 @@ function pullData(){
       saveTask();savePrayer();
     }
     setSyncStatus('synced');
-    renderAll();loadProfile();renderPdfBoxes();
-  }).catch(()=>{setSyncStatus('offline');renderAll();loadProfile();renderPdfBoxes();});
+    renderAll();loadProfile();
+  }).catch(()=>{setSyncStatus('offline');renderAll();loadProfile();});
 }
 
 function launchApp(){
@@ -756,7 +674,11 @@ function launchApp(){
   }
 }
 
-// AUTO START handled by auth.onAuthStateChanged above
+// AUTO START — always launch directly
+window.addEventListener('DOMContentLoaded', function(){
+  launchApp();
+  setTimeout(()=>{pullData();loadProfile();renderAll();renderPdfBoxes();}, 2000);
+});
 
 // ============================================================
 // SAVE FUNCTIONS
@@ -778,7 +700,6 @@ function syncToSheets(){
   clearTimeout(sheetsSyncTimeout);
   sheetsSyncTimeout = setTimeout(()=>{
     if(!transactions.length) return;
-    if(!currentUser) return;
     const rows = transactions.map(t=>[
       t.date, t.desc, t.category, t.type,
       t.type==='income' ? t.amount : -t.amount
@@ -848,20 +769,13 @@ window.addEventListener('load',()=>{
 // PROFILE
 function loadProfile(){
   document.getElementById('drawerNameInput').value=profileData.name||'My Name';
-  // Show Google profile photo if available
-  const picUrl = profileData.pic || (currentUser && currentUser.photoURL) || '';
-  if(picUrl){
-    document.getElementById('drawerAvatar').innerHTML='<img src="'+picUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>';
+  if(profileData.pic){
+    document.getElementById('drawerAvatar').innerHTML='<img src="'+profileData.pic+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>';
     const btn=document.getElementById('profileBtnTop');
-    btn.innerHTML='<img src="'+picUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/><div class="profile-dot"></div>';
+    btn.innerHTML='<img src="'+profileData.pic+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/><div class="profile-dot"></div>';
   } else {
     document.getElementById('drawerAvatar').innerHTML='<span id="drawerAvatarText">💰</span>';
     document.getElementById('profileBtnTop').innerHTML='<span class="profile-btn-text" id="profileBtnText">💰</span><div class="profile-dot"></div>';
-  }
-  // Show Gmail in drawer
-  const emailEl = document.getElementById('drawerEmailText');
-  if(emailEl && currentUser){
-    emailEl.textContent = currentUser.email || '';
   }
 }
 function saveName(){
@@ -1244,7 +1158,10 @@ function renderBank(){
           <label>${f}</label>
           <input type="text" placeholder="Enter ${f}" value="${(b.data&&b.data[f])||''}" onchange="saveBankField(${bi},'${f}',this.value)"/>
         </div>`).join('')}
-      <button class="bank-share-btn" onclick="shareBank(${bi})">📤 Share ${b.name} Details</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-top:0.3rem;">
+        <button class="bank-share-btn" onclick="shareBank(${bi})" style="margin-top:0;">📤 WhatsApp Text</button>
+        <button class="bank-share-btn" onclick="shareBankImage(${bi})" style="margin-top:0;background:#25d366;color:#fff;border-color:#25d366;">🖼️ Image Share</button>
+      </div>
     </div>`).join('');
 }
 function saveBankField(bi,field,val){
@@ -1261,6 +1178,60 @@ function shareBank(bi){
   const wa=`https://wa.me/?text=${encodeURIComponent(txt)}`;
   window.open(wa,'_blank');
   showToast(`📤 Sharing ${b.name} details…`);
+}
+
+function shareBankImage(bi){
+  const b=bankAccounts[bi];
+  const SCALE=3,W=480,pad=22;
+  const lineH=28,headerH=56,footerH=32;
+  const rows=b.fields.length;
+  const H=headerH+rows*lineH+24+footerH;
+  const canvas=document.getElementById('reportCanvas');
+  canvas.width=W*SCALE;canvas.height=H*SCALE;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(SCALE,SCALE);
+  // BG
+  ctx.fillStyle='#f5f6fa';ctx.fillRect(0,0,W,H);
+  // Header
+  ctx.fillStyle='#2563eb';ctx.fillRect(0,0,W,headerH);
+  ctx.fillStyle='#fff';ctx.font='bold 15px Arial';
+  ctx.fillText(b.icon+' '+b.name,pad,26);
+  ctx.font='10px Arial';ctx.fillStyle='rgba(255,255,255,0.8)';
+  ctx.fillText('Bank Account Details',pad,42);
+  // Fields
+  let y=headerH+10;
+  b.fields.forEach((f,fi)=>{
+    ctx.fillStyle=fi%2===0?'#fff':'#f0f4ff';
+    ctx.fillRect(pad,y,W-pad*2,lineH-2);
+    ctx.fillStyle='#6b7280';ctx.font='9px Arial';
+    ctx.textAlign='left';ctx.fillText(f,pad+8,y+10);
+    ctx.fillStyle='#111827';ctx.font='bold 11px Arial';
+    ctx.fillText((b.data&&b.data[f])||'—',pad+8,y+23);
+    y+=lineH;
+  });
+  // Footer
+  ctx.fillStyle='#2563eb';ctx.fillRect(0,H-footerH,W,footerH);
+  ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='9px Arial';
+  ctx.textAlign='left';
+  ctx.fillText('ABDUL AJEEZ — Expense Tracker',pad,H-footerH+19);
+  // Save & share
+  try{
+    canvas.toBlob(function(blob){
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;
+      a.download=b.name.replace(/\s+/g,'-').toLowerCase()+'-details.png';
+      document.body.appendChild(a);a.click();
+      setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1200);
+      setTimeout(()=>{
+        const txt='🏦 *'+b.name+' Account Details*\n_(Image saved — share from your gallery)_\n\n_Via Expense Tracker by ABDUL AJEEZ_';
+        window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+      },800);
+      showToast('🖼️ Image saved! Opening WhatsApp...');
+    },'image/png');
+  }catch(e){
+    window.open(canvas.toDataURL('image/png'),'_blank');
+    showToast('Long press image to save!');
+  }
 }
 
 // OUTSTANDING
@@ -1319,6 +1290,89 @@ function shareOutstanding(){
   try{navigator.clipboard.writeText(txt);}catch(e){}
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
   showToast('📤 Sharing outstanding list…');
+}
+
+function shareOutstandingImage(){
+  if(!outstanding.length){showToast('⚠️ No outstanding items!');return;}
+  const total=outstanding.reduce((s,o)=>s+o.amt,0);
+  const added=outstanding.filter(o=>o.amt>0).reduce((s,o)=>s+o.amt,0);
+  const deducted=outstanding.filter(o=>o.amt<0).reduce((s,o)=>s+Math.abs(o.amt),0);
+  const SCALE=3,W=480,pad=22;
+  const lineH=30,headerH=60,summaryH=72,footerH=32;
+  const H=headerH+outstanding.length*lineH+16+summaryH+footerH;
+  const canvas=document.getElementById('reportCanvas');
+  canvas.width=W*SCALE;canvas.height=H*SCALE;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(SCALE,SCALE);
+  // BG
+  ctx.fillStyle='#f5f6fa';ctx.fillRect(0,0,W,H);
+  // Header
+  ctx.fillStyle='#dc2626';ctx.fillRect(0,0,W,headerH);
+  ctx.fillStyle='#fff';ctx.font='bold 15px Arial';
+  ctx.fillText('📋 Outstanding Summary',pad,28);
+  ctx.font='10px Arial';ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.fillText('Date: '+new Date().toLocaleDateString('en-IN'),pad,46);
+  // Items
+  let y=headerH+10;
+  outstanding.forEach((o,i)=>{
+    ctx.fillStyle=i%2===0?'#fff':'#fef2f2';
+    ctx.fillRect(pad,y,W-pad*2,lineH-2);
+    const sign=o.amt>=0?'➕':'➖';
+    ctx.fillStyle='#374151';ctx.font='10px Arial';
+    ctx.textAlign='left';
+    // truncate desc
+    const desc=o.desc.length>28?o.desc.substring(0,27)+'…':o.desc;
+    ctx.fillText((i+1)+'. '+sign+' '+desc,pad+6,y+19);
+    ctx.fillStyle=o.amt>=0?'#dc2626':'#16a34a';
+    ctx.font='bold 11px Arial';
+    ctx.textAlign='right';
+    ctx.fillText((o.amt<0?'−':'+')+fmt(Math.abs(o.amt)),W-pad-4,y+19);
+    ctx.textAlign='left';
+    y+=lineH;
+  });
+  y+=8;
+  // Summary box
+  ctx.fillStyle='#1f2937';ctx.beginPath();ctx.roundRect(pad,y,W-pad*2,summaryH,8);ctx.fill();
+  ctx.fillStyle='#9ca3af';ctx.font='9px Arial';
+  ctx.fillText('➕ Total Added',pad+10,y+16);
+  ctx.fillStyle='#fff';ctx.font='bold 11px Arial';
+  ctx.textAlign='right';ctx.fillText('+'+fmt(added),W-pad-8,y+16);
+  ctx.textAlign='left';
+  ctx.fillStyle='#9ca3af';ctx.font='9px Arial';
+  ctx.fillText('➖ Total Deducted',pad+10,y+34);
+  ctx.fillStyle='#fff';ctx.font='bold 11px Arial';
+  ctx.textAlign='right';ctx.fillText('−'+fmt(deducted),W-pad-8,y+34);
+  ctx.textAlign='left';
+  // Net balance
+  ctx.fillStyle=total>=0?'#fca5a5':'#86efac';ctx.font='9px Arial';
+  ctx.fillText('💰 Net Balance',pad+10,y+56);
+  ctx.fillStyle=total>=0?'#fca5a5':'#86efac';ctx.font='bold 14px Arial';
+  ctx.textAlign='right';
+  ctx.fillText((total<0?'−':'+')+fmt(Math.abs(total)),W-pad-8,y+56);
+  ctx.textAlign='left';
+  // Footer
+  const fY=H-footerH;
+  ctx.fillStyle='#dc2626';ctx.fillRect(0,fY,W,footerH);
+  ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='9px Arial';
+  ctx.fillText('ABDUL AJEEZ — Expense Tracker',pad,fY+19);
+  // Save & share
+  try{
+    canvas.toBlob(function(blob){
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;
+      a.download='outstanding-'+new Date().toISOString().split('T')[0]+'.png';
+      document.body.appendChild(a);a.click();
+      setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1200);
+      setTimeout(()=>{
+        const txt='📋 *Outstanding Summary*\n_(Image saved — share from gallery via WhatsApp)_\n\n_Via Expense Tracker by ABDUL AJEEZ_';
+        window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+      },900);
+      showToast('🖼️ Image saved! Opening WhatsApp...');
+    },'image/png');
+  }catch(e){
+    window.open(canvas.toDataURL('image/png'),'_blank');
+    showToast('Long press image to save!');
+  }
 }
 
 // TASK - WEEKLY BALANCE TRACKER
