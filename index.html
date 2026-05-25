@@ -637,12 +637,12 @@ function handleRedirectResult() {
 }
 
 // ── Auth State Listener ──
+let authHandled = false;
 window.addEventListener('DOMContentLoaded', function() {
   handleRedirectResult();
   auth.onAuthStateChanged(function(user) {
     if (user) {
       currentUser = user;
-      // Hide login screen, show app
       document.getElementById('loginScreen').classList.add('hide');
       // Update profile from Google account
       if (!profileData.name || profileData.name === 'My Name') {
@@ -652,11 +652,13 @@ window.addEventListener('DOMContentLoaded', function() {
         profileData.pic = user.photoURL;
       }
       localStorage.setItem('exp_profile', JSON.stringify(profileData));
+      // Always skip splash after auth (redirect already took time)
+      sessionStorage.setItem('appReady', '1');
       launchApp();
-      setTimeout(() => { pullData(); loadProfile(); renderAll(); renderPdfBoxes(); }, 300);
+      // Pull Firebase data immediately — no delay
+      pullData();
     } else {
       currentUser = null;
-      // Show login screen
       document.getElementById('loginScreen').classList.remove('hide');
       document.getElementById('splash').classList.add('hide');
     }
@@ -665,12 +667,14 @@ window.addEventListener('DOMContentLoaded', function() {
 
 function signOut() {
   if (confirm('Logout பண்ணவா?')) {
+    closeProfile();
     auth.signOut().then(() => {
-      localStorage.clear();
+      // Don't clear localStorage — data safe-ஆ இருக்கும்
+      // Only clear session so splash won't show on next login
+      sessionStorage.removeItem('appReady');
       location.reload();
     });
   }
-  closeDrawer ? closeDrawer() : closeProfile();
 }
 
 function setSyncStatus(status){
@@ -706,7 +710,7 @@ function pushAllData(){
 
 function pullData(){
   const ref = getUserRef();
-  if(!ref){renderAll();loadProfile();return;}
+  if(!ref){renderAll();loadProfile();renderPdfBoxes();return;}
   setSyncStatus('syncing');
   ref.once('value').then(snap=>{
     const d=snap.val();
@@ -721,8 +725,8 @@ function pullData(){
       saveTask();savePrayer();
     }
     setSyncStatus('synced');
-    renderAll();loadProfile();
-  }).catch(()=>{setSyncStatus('offline');renderAll();loadProfile();});
+    renderAll();loadProfile();renderPdfBoxes();
+  }).catch(()=>{setSyncStatus('offline');renderAll();loadProfile();renderPdfBoxes();});
 }
 
 function launchApp(){
