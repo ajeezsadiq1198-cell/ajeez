@@ -608,30 +608,37 @@ try {
   auth = firebase.auth();
 } catch(e) {}
 
-// ── Google Sign-In ──
+// ── Google Sign-In (Redirect — works in WebView & APK) ──
 function signInWithGoogle() {
   const statusEl = document.getElementById('loginStatusMsg');
-  statusEl.textContent = 'Signing in...';
+  statusEl.textContent = '⏳ Google-க்கு redirect ஆகுது...';
   statusEl.className = 'login-status';
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(result => {
-      // onAuthStateChanged will handle the rest
-    })
-    .catch(err => {
-      statusEl.className = 'login-status error';
-      if (err.code === 'auth/popup-blocked') {
-        statusEl.textContent = '⚠️ Popup block ஆச்சு — browser-ல் popup allow பண்ணுங்க!';
-      } else if (err.code === 'auth/cancelled-popup-request') {
-        statusEl.textContent = '';
-      } else {
-        statusEl.textContent = '⚠️ Login error: ' + err.message;
+  provider.setCustomParameters({ prompt: 'select_account' });
+  auth.signInWithRedirect(provider).catch(err => {
+    statusEl.className = 'login-status error';
+    statusEl.textContent = '⚠️ Error: ' + err.message;
+  });
+}
+
+// ── Handle redirect result on page load ──
+function handleRedirectResult() {
+  auth.getRedirectResult().then(result => {
+    // onAuthStateChanged will handle login state
+  }).catch(err => {
+    if (err.code && err.code !== 'auth/no-current-user') {
+      const statusEl = document.getElementById('loginStatusMsg');
+      if (statusEl) {
+        statusEl.className = 'login-status error';
+        statusEl.textContent = '⚠️ Login failed: ' + err.message;
       }
-    });
+    }
+  });
 }
 
 // ── Auth State Listener ──
 window.addEventListener('DOMContentLoaded', function() {
+  handleRedirectResult();
   auth.onAuthStateChanged(function(user) {
     if (user) {
       currentUser = user;
