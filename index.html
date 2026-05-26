@@ -257,6 +257,27 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
 .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:#fff;padding:0.55rem 1.2rem;border-radius:20px;font-size:0.75rem;font-weight:500;white-space:nowrap;opacity:0;transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1);z-index:300;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+/* EDIT MODAL */
+#editModal,#editOutModal{position:fixed;inset:0;z-index:9500;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.45);}
+#editModal.show,#editOutModal.show{display:flex;}
+.edit-modal-wrap{position:fixed;inset:0;z-index:9500;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.45);}
+.edit-modal-wrap.show{display:flex;}
+.edit-sheet{background:#fff;border-radius:20px 20px 0 0;padding:1.2rem 1rem 2rem;width:100%;max-width:480px;animation:slideUp 0.25s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.edit-sheet-title{font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;}
+.edit-sheet-close{background:none;border:none;font-size:1.2rem;color:var(--muted);cursor:pointer;padding:4px;}
+.edit-field{margin-bottom:0.75rem;}
+.edit-field label{display:block;font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:0.3rem;}
+.edit-field input,.edit-field select{width:100%;background:#f5f6fa;border:1.5px solid var(--border);border-radius:10px;padding:0.68rem 0.85rem;color:var(--text);font-family:'Inter',sans-serif;font-size:0.92rem;outline:none;-webkit-appearance:none;}
+.edit-field input:focus,.edit-field select:focus{border-color:var(--accent);background:#fff;}
+.edit-type-toggle{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:10px;padding:3px;gap:3px;margin-bottom:0.75rem;}
+.edit-type-btn{background:transparent;border:none;padding:0.6rem;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;color:var(--muted);transition:all 0.18s;font-family:'Inter',sans-serif;}
+.edit-type-btn.active-income{background:#fff;color:var(--income);box-shadow:var(--shadow);}
+.edit-type-btn.active-expense{background:#fff;color:var(--expense);box-shadow:var(--shadow);}
+.edit-save-btn{width:100%;padding:0.85rem;border:none;border-radius:12px;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:0.92rem;font-weight:600;cursor:pointer;margin-top:0.3rem;}
+.tx-edit{background:none;border:none;color:var(--accent);font-size:0.8rem;padding:5px 7px;cursor:pointer;border:1px solid var(--accent);border-radius:7px;margin-right:4px;font-family:Inter,sans-serif;font-weight:600;}
+.out-edit{background:none;border:none;color:var(--accent);font-size:0.78rem;padding:4px 6px;cursor:pointer;border:1px solid var(--accent);border-radius:7px;margin-right:2px;font-family:Inter,sans-serif;}
+
 /* PDF LINK BOXES */
 .pdf-grid{display:flex;flex-direction:column;gap:0.7rem;padding:0.85rem;}
 .pdf-box{background:#fff;border-radius:16px;padding:1.1rem 1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(37,99,235,0.10);cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;border:1.5px solid #e2e5ed;min-height:72px;}
@@ -278,6 +299,43 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
   <div class="splash-tag">PERSONAL FINANCE</div>
   <div class="splash-bar"><div class="splash-bar-fill"></div></div>
   <div class="splash-credit">Created by ABDUL AJEEZ</div>
+</div>
+
+<!-- EDIT TRANSACTION MODAL -->
+<div id="editModal">
+  <div class="edit-sheet">
+    <div class="edit-sheet-title">
+      <span>✏️ Edit Transaction</span>
+      <button class="edit-sheet-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="edit-type-toggle">
+      <button class="edit-type-btn active-income" id="editBtnIncome" onclick="setEditType('income')">▲ Income</button>
+      <button class="edit-type-btn" id="editBtnExpense" onclick="setEditType('expense')">▼ Expense</button>
+    </div>
+    <div class="edit-field"><label>Description</label><input type="text" id="editDesc" placeholder="Description"/></div>
+    <div class="edit-field"><label>Amount (₹)</label><input type="number" id="editAmount" placeholder="0" inputmode="decimal"/></div>
+    <div class="edit-field"><label>Category</label><select id="editCategory"></select></div>
+    <div class="edit-field"><label>Date</label><input type="date" id="editDate"/></div>
+    <button class="edit-save-btn" onclick="saveEditTransaction()">💾 Save Changes</button>
+  </div>
+</div>
+
+<!-- EDIT OUTSTANDING MODAL -->
+<div id="editOutModal" class="edit-modal-wrap">
+  <div class="edit-sheet">
+    <div class="edit-sheet-title">
+      <span>✏️ Edit Outstanding</span>
+      <button class="edit-sheet-close" onclick="closeEditOutModal()">✕</button>
+    </div>
+    <div class="edit-field"><label>Name</label><input type="text" id="editOutName" placeholder="Person / Party Name"/></div>
+    <div class="edit-field"><label>Description</label><input type="text" id="editOutDesc" placeholder="Description (e.g. Rent due)"/></div>
+    <div class="edit-field"><label>Amount (₹)</label><input type="number" id="editOutAmt" placeholder="0" inputmode="decimal"/></div>
+    <div class="edit-type-toggle">
+      <button class="edit-type-btn" id="editOutBtnAdd" onclick="setEditOutMode('add')" style="color:#16a34a;">➕ Add</button>
+      <button class="edit-type-btn" id="editOutBtnDeduct" onclick="setEditOutMode('deduct')" style="color:#dc2626;">➖ Deduct</button>
+    </div>
+    <button class="edit-save-btn" onclick="saveEditOutstanding()">💾 Save Changes</button>
+  </div>
 </div>
 
 <!-- CONFIRM MODAL -->
@@ -352,9 +410,10 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
       <div class="s-card inc"><div class="lbl">Income</div><div class="val" id="totalIncome">₹0</div><div class="cnt" id="incomeCount">0</div></div>
       <div class="s-card exp"><div class="lbl">Expense</div><div class="val" id="totalExpense">₹0</div><div class="cnt" id="expenseCount">0</div></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding:0 0.8rem 0.5rem;">
-      <button style="padding:0.65rem;border:none;border-radius:11px;background:#2563eb;color:#fff;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;" onclick="downloadReportImage()">&#128444;&#65039; Download Report</button>
-      <button style="padding:0.65rem;border:none;border-radius:11px;background:#25d366;color:#fff;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;" onclick="shareReportText()">&#128228; Share WhatsApp</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;padding:0 0.8rem 0.5rem;">
+      <button style="padding:0.65rem;border:none;border-radius:11px;background:#2563eb;color:#fff;font-size:0.73rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;" onclick="downloadReportImage()">🖼️ Image</button>
+      <button style="padding:0.65rem;border:none;border-radius:11px;background:#dc2626;color:#fff;font-size:0.73rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;" onclick="downloadReportPDF()">📄 PDF</button>
+      <button style="padding:0.65rem;border:none;border-radius:11px;background:#25d366;color:#fff;font-size:0.73rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;" onclick="shareReportText()">📤 Share</button>
     </div>
     <div class="sec-title">Recent Transactions</div>
     <div class="filter-row">
@@ -389,8 +448,9 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
       <button class="atab" onclick="setAnalyticsTab('datewise',this)">Date-wise</button>
     </div>
     <div class="report-action">
-      <button class="rpt-btn rpt-img" onclick="downloadReportImage()">🖼️ Download Image</button>
-      <button class="rpt-btn rpt-share" onclick="shareReportText()">📤 Share WhatsApp</button>
+      <button class="rpt-btn rpt-img" onclick="downloadReportImage()">🖼️ Image</button>
+      <button class="rpt-btn" style="background:#dc2626;color:#fff;" onclick="downloadReportPDF()">📄 PDF</button>
+      <button class="rpt-btn rpt-share" onclick="shareReportText()">📤 WhatsApp</button>
     </div>
     <div id="analyticsContent"></div>
   </div>
@@ -414,6 +474,9 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
     <div class="outstanding-wrap">
       <div class="out-form">
         <div class="out-form-title">Outstanding Tracker</div>
+        <div class="out-row">
+          <input class="out-input" id="outName" placeholder="Name (e.g. Ravi, Shop)"/>
+        </div>
         <div class="out-row">
           <input class="out-input" id="outDesc" placeholder="Description (e.g. Rent due)"/>
         </div>
@@ -621,7 +684,18 @@ function scheduleSync(){
 function pushAllData(){
   if(!userPhone||!db)return;
   const docsMeta=documents.map(d=>({id:d.id,name:d.name,size:d.size,type:d.type,added:d.added}));
-  const payload={transactions,outstanding,weekly:weeklyData,prayer:prayerData,profile:profileData,docsMeta,lastSync:Date.now()};
+  // profile pic is base64 large data — keep in localStorage only, not Firebase
+  const profileNoPic={name:profileData.name||'',pic:''};
+  const payload={
+    transactions,
+    outstanding,
+    weekly:weeklyData,
+    prayer:prayerData,
+    profile:profileNoPic,
+    banks:bankAccounts,
+    docsMeta,
+    lastSync:Date.now()
+  };
   db.ref('users/'+userPhone+'/data').set(payload)
     .then(()=>setSyncStatus('synced'))
     .catch(()=>setSyncStatus('offline'));
@@ -637,7 +711,13 @@ function pullData(){
       if(d.outstanding)outstanding=d.outstanding;
       if(d.weekly)weeklyData=d.weekly;
       if(d.prayer)prayerData=d.prayer;
-      if(d.profile){profileData=d.profile;localStorage.setItem('exp_profile',JSON.stringify(profileData));}
+      if(d.profile){
+        // Keep existing profile pic from localStorage (not overwrite with empty)
+        const existingPic=profileData.pic||'';
+        profileData={...d.profile,pic:existingPic};
+        localStorage.setItem('exp_profile',JSON.stringify(profileData));
+      }
+      if(d.banks){bankAccounts=d.banks;localStorage.setItem('exp_banks',JSON.stringify(bankAccounts));}
       localStorage.setItem('exp_tx',JSON.stringify(transactions));
       localStorage.setItem('exp_out',JSON.stringify(outstanding));
       saveTask();savePrayer();
@@ -854,7 +934,7 @@ function deleteTransaction(id){
 }
 
 // RENDER
-function renderAll(){renderSummary();renderList();}
+function renderAll(){renderSummary();renderList();renderBank();renderOutstanding();renderTaskPage();renderPrayerPage();renderDocs();}
 function renderSummary(){
   const inc=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const exp=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
@@ -874,6 +954,7 @@ function renderList(){
       <div class="tx-ico ${t.type}">${ICONS[t.category]||'📌'}</div>
       <div class="tx-info"><div class="tx-desc">${t.desc}</div><div class="tx-meta">${t.category} · ${fmtDate(t.date)}</div></div>
       <div class="tx-right"><div class="tx-amt ${t.type}">${t.type==='income'?'+':'−'}${fmt(t.amount)}</div></div>
+      <button class="tx-edit" onclick="openEditTransaction(${t.id})">✏️</button>
       <button class="tx-del" onclick="deleteTransaction(${t.id})">✕</button>
     </div>`).join('');
 }
@@ -989,9 +1070,7 @@ function renderDatewiseHTML(){
 }
 
 // REPORT IMAGE
-function downloadReportImage(){
-  if(!transactions.length){showToast('⚠️ No data to export!');return;}
-  showToast('⏳ Generating HD image…');
+function buildReportCanvas(){
   const inc=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const exp=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const bal=inc-exp;
@@ -1027,19 +1106,53 @@ function downloadReportImage(){
   ctx.fillStyle='#2563eb';ctx.fillRect(0,H-34,W,34);
   ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='11px Arial';
   ctx.fillText('Created by ABDUL AJEEZ — Expense Tracker',pad,H-13);
-  try{
-    canvas.toBlob(blob=>{
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=url;a.download='expense-report-'+new Date().toISOString().split('T')[0]+'.png';
-      document.body.appendChild(a);a.click();
-      setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1200);
-      showToast('✅ HD Image downloaded!');
-    },'image/png');
-  }catch(e){
-    const url=canvas.toDataURL('image/png');
-    window.open(url,'_blank');
-    showToast('✅ Image opened — long press to save!');
-  }
+  return canvas;
+}
+function downloadReportImage(){
+  if(!transactions.length){showToast('⚠️ No data to export!');return;}
+  showToast('⏳ Image தயாராகுது…');
+  const canvas=buildReportCanvas();
+  const dataUrl=canvas.toDataURL('image/png');
+  const win=window.open('','_blank');
+  if(!win){showToast('⚠️ Pop-up allow பண்ணுங்க!');return;}
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Expense Report</title>
+  <style>*{margin:0;padding:0;}body{background:#111;display:flex;flex-direction:column;align-items:center;min-height:100vh;}
+  img{max-width:100%;display:block;}
+  .bar{background:#2563eb;color:#fff;padding:12px 16px;width:100%;font-family:Arial,sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+  .hint{color:rgba(255,255,255,0.8);font-size:11px;font-weight:400;}
+  a.dl{background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;margin:12px;}
+  </style></head><body>
+  <div class="bar">📊 Expense Report <span class="hint">Long press image → Save / Share</span></div>
+  <a class="dl" href="${dataUrl}" download="expense-report.png">⬇️ Download Image</a>
+  <img src="${dataUrl}"/>
+  </body></html>`);
+  win.document.close();
+  showToast('✅ New tab-ல் image open ஆச்சு — Save/Share பண்ணுங்க!');
+}
+function downloadReportPDF(){
+  if(!transactions.length){showToast('⚠️ No data to export!');return;}
+  showToast('⏳ PDF தயாராகுது…');
+  const canvas=buildReportCanvas();
+  const imgData=canvas.toDataURL('image/png');
+  const win=window.open('','_blank');
+  if(!win){showToast('⚠️ Pop-up allow பண்ணுங்க!');return;}
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+  <title>Expense Report</title>
+  <style>*{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:Arial,sans-serif;}
+  img{width:100%;display:block;page-break-inside:avoid;}
+  .noprint{background:#2563eb;color:#fff;padding:10px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+  button{background:#dc2626;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;}
+  @media print{.noprint{display:none;}}</style></head>
+  <body>
+  <div class="noprint">📄 Expense Report PDF <button onclick="window.print()">🖨️ Save as PDF</button></div>
+  <img src="${imgData}"/>
+  <script>setTimeout(()=>window.print(),800);<\/script>
+  </body></html>`);
+  win.document.close();
+  showToast('📄 Print dialog-ல் "Save as PDF" select பண்ணுங்க!');
 }
 function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 
@@ -1215,35 +1328,40 @@ function shareBankImage(bi){
   ctx.textAlign='left';
   ctx.fillText('ABDUL AJEEZ — Expense Tracker',pad,H-footerH+19);
   // Save & share
-  try{
-    canvas.toBlob(function(blob){
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=url;
-      a.download=b.name.replace(/\s+/g,'-').toLowerCase()+'-details.png';
-      document.body.appendChild(a);a.click();
-      setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1200);
-      setTimeout(()=>{
-        const txt='🏦 *'+b.name+' Account Details*\n_(Image saved — share from your gallery)_\n\n_Via Expense Tracker by ABDUL AJEEZ_';
-        window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
-      },800);
-      showToast('🖼️ Image saved! Opening WhatsApp...');
-    },'image/png');
-  }catch(e){
-    window.open(canvas.toDataURL('image/png'),'_blank');
-    showToast('Long press image to save!');
+  const dataUrl=canvas.toDataURL('image/png');
+  const win=window.open('','_blank');
+  if(win){
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>${b.name} Details</title>
+    <style>*{margin:0;padding:0;}body{background:#111;display:flex;flex-direction:column;align-items:center;}
+    img{max-width:100%;display:block;}
+    .bar{background:#2563eb;color:#fff;padding:12px 16px;width:100%;font-family:Arial,sans-serif;font-size:13px;font-weight:700;}
+    .hint{color:rgba(255,255,255,0.8);font-size:11px;font-weight:400;display:block;margin-top:3px;}
+    a.dl{background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;margin:12px;}
+    </style></head><body>
+    <div class="bar">🏦 ${b.name} Details<span class="hint">Long press image → Save / Share to WhatsApp</span></div>
+    <a class="dl" href="${dataUrl}" download="${b.name.replace(/\s+/g,'-').toLowerCase()}-details.png">⬇️ Download Image</a>
+    <img src="${dataUrl}"/>
+    </body></html>`);
+    win.document.close();
+    showToast('✅ New tab-ல் open ஆச்சு — Save/Share பண்ணுங்க!');
+  } else {
+    showToast('⚠️ Pop-up allow பண்ணுங்க!');
   }
 }
 
 // OUTSTANDING
 function addOutstanding(mode){
+  const name=document.getElementById('outName').value.trim();
   const desc=document.getElementById('outDesc').value.trim();
   const amt=parseFloat(document.getElementById('outAmt').value);
   if(!desc){showToast('⚠️ Enter description!');return;}
   if(!amt||amt<=0){showToast('⚠️ Enter valid amount!');return;}
   const finalAmt=mode==='deduct'?-amt:amt;
-  outstanding.push({id:Date.now(),desc,amt:finalAmt,mode:mode||'add'});
+  outstanding.push({id:Date.now(),name:name||'',desc,amt:finalAmt,mode:mode||'add'});
   saveOut();renderOutstanding();
-  document.getElementById('outDesc').value='';document.getElementById('outAmt').value='';
+  document.getElementById('outName').value='';document.getElementById('outDesc').value='';document.getElementById('outAmt').value='';
   showToast(mode==='deduct'?'✅ Deducted!':'✅ Added!');
 }
 function deleteOut(id){
@@ -1259,14 +1377,18 @@ function renderOutstanding(){
   const deducted=outstanding.filter(o=>o.amt<0).reduce((s,o)=>s+Math.abs(o.amt),0);
   if(!outstanding.length){list.innerHTML=`<div class="empty-state"><div class="eicon">📋</div><p>No outstanding amounts.<br>Add or deduct above.</p></div>`;document.getElementById('outTotalBlock').style.display='none';return;}
   list.innerHTML=outstanding.map(o=>`
-    <div class="out-item">
-      <div class="out-item-desc">${o.mode==='deduct'?'➖':'➕'} ${o.desc}</div>
-      <div class="out-item-amt" style="color:${o.amt<0?'#16a34a':'#dc2626'}">${o.amt<0?'−':'+'}${fmt(Math.abs(o.amt))}</div>
-      <button class="out-del" onclick="deleteOut(${o.id})">✕</button>
+    <div class="out-item" style="flex-wrap:wrap;gap:0.3rem;">
+      <div style="flex:1;min-width:0;">
+        ${o.name?`<div style="font-size:0.72rem;font-weight:700;color:#2563eb;margin-bottom:2px;">👤 ${o.name}</div>`:''}
+        <div class="out-item-desc" style="font-size:0.83rem;">${o.mode==='deduct'?'➖':'➕'} ${o.desc}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+        <div class="out-item-amt" style="color:${o.amt<0?'#16a34a':'#dc2626'}">${o.amt<0?'−':'+'}${fmt(Math.abs(o.amt))}</div>
+        <button class="out-edit" onclick="openEditOutstanding('${o.id}')">✏️</button>
+        <button class="out-del" onclick="deleteOut(${o.id})">✕</button>
+      </div>
     </div>`).join('');
   document.getElementById('outTotalBlock').style.display='block';
-  const tb=document.getElementById('outTotalBlock');
-  tb.querySelector('.out-total-val')||null;
   document.getElementById('outTotalVal').textContent=(total<0?'−':'')+fmt(Math.abs(total));
 }
 function shareOutstanding(){
@@ -1279,7 +1401,8 @@ function shareOutstanding(){
   outstanding.forEach((o,i)=>{
     const sign=o.amt>=0?'➕':'➖';
     const amtStr=(o.amt<0?'−':'+')+fmt(Math.abs(o.amt));
-    txt+=(i+1)+'. '+sign+' '+o.desc+' — '+amtStr+'\n';
+    const nameStr=o.name?` (${o.name})`:'';
+    txt+=(i+1)+'. '+sign+' '+o.desc+nameStr+' — '+amtStr+'\n';
   });
   txt+='\n━━━━━━━━━━━━━━━\n';
   txt+='➕ Total Added    : +'+fmt(added)+'\n';
@@ -1298,7 +1421,7 @@ function shareOutstandingImage(){
   const added=outstanding.filter(o=>o.amt>0).reduce((s,o)=>s+o.amt,0);
   const deducted=outstanding.filter(o=>o.amt<0).reduce((s,o)=>s+Math.abs(o.amt),0);
   const SCALE=3,W=480,pad=22;
-  const lineH=30,headerH=60,summaryH=72,footerH=32;
+  const lineH=38,headerH=60,summaryH=80,footerH=32;
   const H=headerH+outstanding.length*lineH+16+summaryH+footerH;
   const canvas=document.getElementById('reportCanvas');
   canvas.width=W*SCALE;canvas.height=H*SCALE;
@@ -1309,7 +1432,7 @@ function shareOutstandingImage(){
   // Header
   ctx.fillStyle='#dc2626';ctx.fillRect(0,0,W,headerH);
   ctx.fillStyle='#fff';ctx.font='bold 15px Arial';
-  ctx.fillText('📋 Outstanding Summary',pad,28);
+  ctx.fillText('Outstanding Summary',pad,28);
   ctx.font='10px Arial';ctx.fillStyle='rgba(255,255,255,0.85)';
   ctx.fillText('Date: '+new Date().toLocaleDateString('en-IN'),pad,46);
   // Items
@@ -1317,16 +1440,21 @@ function shareOutstandingImage(){
   outstanding.forEach((o,i)=>{
     ctx.fillStyle=i%2===0?'#fff':'#fef2f2';
     ctx.fillRect(pad,y,W-pad*2,lineH-2);
-    const sign=o.amt>=0?'➕':'➖';
+    const sign=o.amt>=0?'+':'-';
+    // Name line
+    if(o.name){
+      ctx.fillStyle='#2563eb';ctx.font='bold 9px Arial';
+      ctx.textAlign='left';
+      ctx.fillText('👤 '+o.name,pad+6,y+13);
+    }
     ctx.fillStyle='#374151';ctx.font='10px Arial';
     ctx.textAlign='left';
-    // truncate desc
     const desc=o.desc.length>28?o.desc.substring(0,27)+'…':o.desc;
-    ctx.fillText((i+1)+'. '+sign+' '+desc,pad+6,y+19);
+    ctx.fillText((i+1)+'. '+(o.mode==='deduct'?'- ':' + ')+desc,pad+6,y+(o.name?27:19));
     ctx.fillStyle=o.amt>=0?'#dc2626':'#16a34a';
     ctx.font='bold 11px Arial';
     ctx.textAlign='right';
-    ctx.fillText((o.amt<0?'−':'+')+fmt(Math.abs(o.amt)),W-pad-4,y+19);
+    ctx.fillText((o.amt<0?'−':'+')+fmt(Math.abs(o.amt)),W-pad-4,y+(o.name?27:19));
     ctx.textAlign='left';
     y+=lineH;
   });
@@ -1334,45 +1462,67 @@ function shareOutstandingImage(){
   // Summary box
   ctx.fillStyle='#1f2937';ctx.beginPath();ctx.roundRect(pad,y,W-pad*2,summaryH,8);ctx.fill();
   ctx.fillStyle='#9ca3af';ctx.font='9px Arial';
-  ctx.fillText('➕ Total Added',pad+10,y+16);
-  ctx.fillStyle='#fff';ctx.font='bold 11px Arial';
-  ctx.textAlign='right';ctx.fillText('+'+fmt(added),W-pad-8,y+16);
+  ctx.fillText('Total Added',pad+10,y+18);
+  ctx.fillStyle='#86efac';ctx.font='bold 12px Arial';
+  ctx.textAlign='right';ctx.fillText('+'+fmt(added),W-pad-8,y+18);
   ctx.textAlign='left';
   ctx.fillStyle='#9ca3af';ctx.font='9px Arial';
-  ctx.fillText('➖ Total Deducted',pad+10,y+34);
-  ctx.fillStyle='#fff';ctx.font='bold 11px Arial';
-  ctx.textAlign='right';ctx.fillText('−'+fmt(deducted),W-pad-8,y+34);
+  ctx.fillText('Total Deducted',pad+10,y+38);
+  ctx.fillStyle='#fca5a5';ctx.font='bold 12px Arial';
+  ctx.textAlign='right';ctx.fillText('−'+fmt(deducted),W-pad-8,y+38);
   ctx.textAlign='left';
-  // Net balance
-  ctx.fillStyle=total>=0?'#fca5a5':'#86efac';ctx.font='9px Arial';
-  ctx.fillText('💰 Net Balance',pad+10,y+56);
-  ctx.fillStyle=total>=0?'#fca5a5':'#86efac';ctx.font='bold 14px Arial';
+  ctx.fillStyle=total>=0?'#fbbf24':'#86efac';ctx.font='9px Arial';
+  ctx.fillText('Net Balance',pad+10,y+62);
+  ctx.fillStyle=total>=0?'#fbbf24':'#86efac';ctx.font='bold 15px Arial';
   ctx.textAlign='right';
-  ctx.fillText((total<0?'−':'+')+fmt(Math.abs(total)),W-pad-8,y+56);
+  ctx.fillText((total<0?'−':'+')+fmt(Math.abs(total)),W-pad-8,y+62);
   ctx.textAlign='left';
   // Footer
   const fY=H-footerH;
   ctx.fillStyle='#dc2626';ctx.fillRect(0,fY,W,footerH);
   ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='9px Arial';
   ctx.fillText('ABDUL AJEEZ — Expense Tracker',pad,fY+19);
-  // Save & share
-  try{
-    canvas.toBlob(function(blob){
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=url;
-      a.download='outstanding-'+new Date().toISOString().split('T')[0]+'.png';
-      document.body.appendChild(a);a.click();
-      setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1200);
-      setTimeout(()=>{
-        const txt='📋 *Outstanding Summary*\n_(Image saved — share from gallery via WhatsApp)_\n\n_Via Expense Tracker by ABDUL AJEEZ_';
-        window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
-      },900);
-      showToast('🖼️ Image saved! Opening WhatsApp...');
-    },'image/png');
-  }catch(e){
-    window.open(canvas.toDataURL('image/png'),'_blank');
-    showToast('Long press image to save!');
-  }
+  // Share image directly via Web Share API
+  showToast('⏳ Image தயாராகுது…');
+  canvas.toBlob(async function(blob){
+    const fname='outstanding-'+new Date().toISOString().split('T')[0]+'.png';
+    // Try Web Share API (direct image to WhatsApp)
+    if(navigator.share && navigator.canShare){
+      const file=new File([blob],fname,{type:'image/png'});
+      if(navigator.canShare({files:[file]})){
+        try{
+          await navigator.share({files:[file],title:'Outstanding Summary',text:'Outstanding Report - Expense Tracker by ABDUL AJEEZ'});
+          showToast('✅ Image shared!');
+          return;
+        }catch(shareErr){
+          if(shareErr.name!=='AbortError'){/* fall through */}
+          else{return;}
+        }
+      }
+    }
+    // Fallback: open in new tab for save/share
+    const dataUrl=canvas.toDataURL('image/png');
+    const win=window.open('','_blank');
+    if(win){
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+      <meta name="viewport" content="width=device-width,initial-scale=1"/>
+      <title>Outstanding Report</title>
+      <style>*{margin:0;padding:0;}body{background:#111;display:flex;flex-direction:column;align-items:center;}
+      img{max-width:100%;display:block;}
+      .bar{background:#dc2626;color:#fff;padding:12px 16px;width:100%;font-family:Arial,sans-serif;font-size:13px;font-weight:700;}
+      .hint{color:rgba(255,255,255,0.8);font-size:11px;font-weight:400;display:block;margin-top:3px;}
+      a.dl{background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;margin:12px;}
+      </style></head><body>
+      <div class="bar">📋 Outstanding Report<span class="hint">Long press image → Save / Share to WhatsApp</span></div>
+      <a class="dl" href="${dataUrl}" download="outstanding-report.png">⬇️ Download Image</a>
+      <img src="${dataUrl}"/>
+      </body></html>`);
+      win.document.close();
+      showToast('✅ New tab-ல் image open ஆச்சு — Save/Share பண்ணுங்க!');
+    } else {
+      showToast('⚠️ Pop-up allow பண்ணுங்க!');
+    }
+  },'image/png');
 }
 
 // TASK - WEEKLY BALANCE TRACKER
@@ -1508,15 +1658,23 @@ function saveWeeklyReport(type){
     ctx.fillStyle='#2563eb';ctx.fillRect(0,h-30,w,30);
     ctx.fillStyle='rgba(255,255,255,0.75)';ctx.font='9px Arial';
     ctx.fillText('ABDUL AJEEZ - Expense Tracker',pad,h-10);
-    try{
-      canvas.toBlob(function(blob){
-        var url=URL.createObjectURL(blob);
-        var a=document.createElement('a');a.href=url;a.download='weekly-report-'+wk+'.png';
-        document.body.appendChild(a);a.click();
-        setTimeout(function(){URL.revokeObjectURL(url);document.body.removeChild(a);},1200);
-        showToast('Weekly report image saved!');
-      },'image/png');
-    }catch(e){window.open(canvas.toDataURL('image/png'),'_blank');showToast('Long press image to save!');}
+    var dataUrl=canvas.toDataURL('image/png');
+    var win=window.open('','_blank');
+    if(win){
+      win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Weekly Report</title>'
+      +'<style>*{margin:0;padding:0;}body{background:#111;display:flex;flex-direction:column;align-items:center;}'
+      +'img{max-width:100%;display:block;}'
+      +'.bar{background:#2563eb;color:#fff;padding:12px 16px;width:100%;font-family:Arial,sans-serif;font-size:13px;font-weight:700;}'
+      +'.hint{color:rgba(255,255,255,0.8);font-size:11px;font-weight:400;display:block;margin-top:3px;}'
+      +'a.dl{background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;margin:12px;}'
+      +'</style></head><body>'
+      +'<div class="bar">📊 Weekly Balance Report<span class="hint">Long press image → Save / Share to WhatsApp</span></div>'
+      +'<a class="dl" href="'+dataUrl+'" download="weekly-report.png">⬇️ Download Image</a>'
+      +'<img src="'+dataUrl+'"/>'
+      +'</body></html>');
+      win.document.close();
+      showToast('✅ New tab-ல் open ஆச்சு!');
+    }else{showToast('⚠️ Pop-up allow பண்ணுங்க!');}
   } else if(type==='pdf'){
     var html='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Weekly Report</title>';
     html+='<style>body{font-family:Arial,sans-serif;font-size:11px;margin:20px;}h2{color:#2563eb;margin:0 0 2px;}';
@@ -1695,15 +1853,23 @@ function savePrayerReport(type){
     ctx.fillStyle='#059669';ctx.fillRect(0,H-32,W,32);
     ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='10px Arial';
     ctx.fillText('ABDUL AJEEZ — Expense Tracker | Total: '+totalDone+'/'+totalP,pad/SCALE,H-11);
-    try{
-      canvas.toBlob(function(blob){
-        var url=URL.createObjectURL(blob);
-        var a=document.createElement('a');a.href=url;a.download='prayer-report-'+wk+'.png';
-        document.body.appendChild(a);a.click();
-        setTimeout(function(){URL.revokeObjectURL(url);document.body.removeChild(a);},1200);
-        showToast('Prayer report image saved!');
-      },'image/png');
-    }catch(e){window.open(canvas.toDataURL('image/png'),'_blank');showToast('Long press to save!');}
+    var dataUrl2=canvas.toDataURL('image/png');
+    var win2=window.open('','_blank');
+    if(win2){
+      win2.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Prayer Report</title>'
+      +'<style>*{margin:0;padding:0;}body{background:#111;display:flex;flex-direction:column;align-items:center;}'
+      +'img{max-width:100%;display:block;}'
+      +'.bar{background:#059669;color:#fff;padding:12px 16px;width:100%;font-family:Arial,sans-serif;font-size:13px;font-weight:700;}'
+      +'.hint{color:rgba(255,255,255,0.8);font-size:11px;font-weight:400;display:block;margin-top:3px;}'
+      +'a.dl{background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;margin:12px;}'
+      +'</style></head><body>'
+      +'<div class="bar">🕌 Prayer Attendance Report<span class="hint">Long press image → Save / Share to WhatsApp</span></div>'
+      +'<a class="dl" href="'+dataUrl2+'" download="prayer-report.png">⬇️ Download Image</a>'
+      +'<img src="'+dataUrl2+'"/>'
+      +'</body></html>');
+      win2.document.close();
+      showToast('✅ New tab-ல் open ஆச்சு!');
+    }else{showToast('⚠️ Pop-up allow பண்ணுங்க!');}
   } else if(type==='pdf'){
     var html2='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Prayer Report</title>';
     html2+='<style>body{font-family:Arial,sans-serif;font-size:11px;margin:18px;}h2{color:#059669;margin:0 0 2px;}';
@@ -1772,13 +1938,15 @@ function openPdfDoc(i){
 // ============================================================
 function getBackupData(){
   return JSON.stringify({
-    version:1,
+    version:2,
     exportDate:new Date().toISOString(),
     transactions,
     outstanding,
     weekly:weeklyData,
     prayer:prayerData,
-    profile:profileData
+    profile:profileData,
+    banks:bankAccounts,
+    documents:documents
   });
 }
 
@@ -1786,14 +1954,21 @@ function getBackupData(){
 function exportDownload(){
   try{
     const json=getBackupData();
-    const blob=new Blob([json],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download='expense-backup-'+new Date().toISOString().split('T')[0]+'.json';
-    document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
-    showToast('✅ File download ஆகுது!');
+    const dataUrl='data:application/json;charset=utf-8,'+encodeURIComponent(json);
+    const win=window.open('','_blank');
+    if(!win){showToast('⚠️ Pop-up allow பண்ணுங்க!');return;}
+    const fname='expense-backup-'+new Date().toISOString().split('T')[0]+'.json';
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Backup Download</title>'
+    +'<style>body{font-family:Arial,sans-serif;background:#f5f6fa;display:flex;flex-direction:column;align-items:center;padding:40px 20px;}'
+    +'h3{color:#2563eb;margin-bottom:12px;}p{color:#6b7280;font-size:13px;margin-bottom:20px;text-align:center;}'
+    +'a{background:#2563eb;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:700;}'
+    +'</style></head><body>'
+    +'<h3>💾 Expense Tracker Backup</h3>'
+    +'<p>கீழே உள்ள button-ஐ tap பண்ணி JSON file download பண்ணுங்க</p>'
+    +'<a href="'+dataUrl+'" download="'+fname+'">⬇️ Download Backup JSON</a>'
+    +'</body></html>');
+    win.document.close();
+    showToast('✅ New tab-ல் download link ready!');
   }catch(e){
     showToast('⚠️ Download work ஆகல — WhatsApp try பண்ணுங்க!');
   }
@@ -1873,8 +2048,99 @@ function applyImport(data){
   if(data.weekly){weeklyData=data.weekly;localStorage.setItem('exp_weekly',JSON.stringify(weeklyData));}
   if(data.prayer){prayerData=data.prayer;localStorage.setItem('exp_prayer',JSON.stringify(prayerData));}
   if(data.profile){profileData=data.profile;localStorage.setItem('exp_profile',JSON.stringify(profileData));}
+  if(data.banks){bankAccounts=data.banks;localStorage.setItem('exp_banks',JSON.stringify(bankAccounts));}
+  if(data.documents){documents=data.documents;localStorage.setItem('exp_docs',JSON.stringify(documents));}
   renderAll();loadProfile();
   showToast('✅ எல்லா data-உம் திரும்ப வந்துச்சு!');
+}
+
+// ============================================================
+// EDIT TRANSACTION
+// ============================================================
+let editingTxId = null;
+let editingTxType = 'income';
+
+function openEditTransaction(id){
+  const t=transactions.find(tx=>Number(tx.id)===Number(id));
+  if(!t)return;
+  editingTxId=Number(id);
+  editingTxType=t.type;
+  document.getElementById('editDesc').value=t.desc;
+  document.getElementById('editAmount').value=t.amount;
+  document.getElementById('editDate').value=t.date;
+  setEditType(t.type);
+  const cats=t.type==='income'?INCOME_CATS:EXPENSE_CATS;
+  document.getElementById('editCategory').innerHTML=cats.map(c=>`<option value="${c}"${c===t.category?' selected':''}>${ICONS[c]} ${c}</option>`).join('');
+  document.getElementById('editModal').classList.add('show');
+}
+function closeEditModal(){document.getElementById('editModal').classList.remove('show');editingTxId=null;}
+function setEditType(type){
+  editingTxType=type;
+  document.getElementById('editBtnIncome').className='edit-type-btn'+(type==='income'?' active-income':'');
+  document.getElementById('editBtnExpense').className='edit-type-btn'+(type==='expense'?' active-expense':'');
+  const cats=type==='income'?INCOME_CATS:EXPENSE_CATS;
+  const prev=document.getElementById('editCategory').value;
+  document.getElementById('editCategory').innerHTML=cats.map(c=>`<option value="${c}"${c===prev?' selected':''}>${ICONS[c]} ${c}</option>`).join('');
+}
+function saveEditTransaction(){
+  if(!editingTxId)return;
+  const desc=document.getElementById('editDesc').value.trim();
+  const amount=parseFloat(document.getElementById('editAmount').value);
+  const category=document.getElementById('editCategory').value;
+  const date=document.getElementById('editDate').value;
+  if(!desc){showToast('⚠️ Enter description!');return;}
+  if(!amount||amount<=0){showToast('⚠️ Enter valid amount!');return;}
+  if(!date){showToast('⚠️ Select date!');return;}
+  const idx=transactions.findIndex(tx=>Number(tx.id)===editingTxId);
+  if(idx<0)return;
+  transactions[idx]={...transactions[idx],type:editingTxType,desc,amount,category,date};
+  save();renderSummary();renderList();
+  closeEditModal();showToast('✅ Transaction updated!');
+}
+
+// ============================================================
+// EDIT OUTSTANDING
+// ============================================================
+let editingOutId = null;
+let editingOutMode = 'add';
+
+function openEditOutstanding(id){
+  const o=outstanding.find(x=>String(x.id)===String(id));
+  if(!o){showToast('⚠️ Item not found!');return;}
+  editingOutId=o.id;
+  editingOutMode=o.mode||'add';
+  document.getElementById('editOutName').value=o.name||'';
+  document.getElementById('editOutDesc').value=o.desc||'';
+  document.getElementById('editOutAmt').value=Math.abs(o.amt);
+  setEditOutMode(o.mode||'add');
+  const modal=document.getElementById('editOutModal');
+  modal.style.display='flex';
+  modal.classList.add('show');
+}
+function closeEditOutModal(){
+  const modal=document.getElementById('editOutModal');
+  modal.classList.remove('show');
+  modal.style.display='none';
+  editingOutId=null;
+}
+function setEditOutMode(mode){
+  editingOutMode=mode;
+  document.getElementById('editOutBtnAdd').className='edit-type-btn'+(mode==='add'?' active-income':'');
+  document.getElementById('editOutBtnDeduct').className='edit-type-btn'+(mode==='deduct'?' active-expense':'');
+}
+function saveEditOutstanding(){
+  if(!editingOutId)return;
+  const name=document.getElementById('editOutName').value.trim();
+  const desc=document.getElementById('editOutDesc').value.trim();
+  const amt=parseFloat(document.getElementById('editOutAmt').value);
+  if(!desc){showToast('⚠️ Enter description!');return;}
+  if(!amt||amt<=0){showToast('⚠️ Enter valid amount!');return;}
+  const idx=outstanding.findIndex(x=>String(x.id)===String(editingOutId));
+  if(idx<0){showToast('⚠️ Item not found!');return;}
+  const finalAmt=editingOutMode==='deduct'?-amt:amt;
+  outstanding[idx]={...outstanding[idx],name,desc,amt:finalAmt,mode:editingOutMode};
+  saveOut();renderOutstanding();
+  closeEditOutModal();showToast('✅ Outstanding updated!');
 }
 
 // CONFIRM DIALOG
