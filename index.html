@@ -567,7 +567,7 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
         <button onclick="document.getElementById('importFileInput').click()" style="width:100%;padding:0.85rem;border:none;border-radius:12px;background:#d97706;color:#fff;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:0.6rem;display:flex;align-items:center;justify-content:center;gap:8px;">
           📂 JSON File Import பண்ணு
         </button>
-        <input type="file" id="importFileInput" accept=".json" onchange="importData(event)" style="display:none;"/>
+        <input type="file" id="importFileInput" accept=".json,application/json,text/plain,*/*" onchange="importData(event)" style="display:none;"/>
 
         <!-- Import from text paste -->
         <button onclick="importFromText()" style="width:100%;padding:0.85rem;border:1.5px solid #d97706;border-radius:12px;background:#fff;color:#d97706;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
@@ -2020,11 +2020,19 @@ function importData(e){
   const reader=new FileReader();
   reader.onload=ev=>{
     try{
-      const data=JSON.parse(ev.target.result);
+      let text=ev.target.result.trim();
+      // Remove BOM if present
+      if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
+      // Try to find JSON object start (handle prefixed text)
+      const startIdx=text.indexOf('{');
+      if(startIdx>0)text=text.substring(startIdx);
+      const data=JSON.parse(text);
       applyImport(data);
-    }catch(err){showToast('⚠️ Invalid file!');}
+    }catch(err){
+      showToast('⚠️ File படிக்க முடியல! சரியான backup JSON file select பண்ணுங்க.');
+    }
   };
-  reader.readAsText(file);
+  reader.readAsText(file,'UTF-8');
   e.target.value='';
 }
 
@@ -2033,25 +2041,35 @@ function importFromText(){
   const text=prompt('WhatsApp-லிருந்து copy பண்ண backup text-ஐ இங்க paste பண்ணுங்க:');
   if(!text)return;
   try{
-    // Extract JSON from message (may have header text)
-    const jsonStart=text.indexOf('{"version"');
-    const json=jsonStart>=0?text.substring(jsonStart):text;
-    const data=JSON.parse(json);
+    let t=text.trim();
+    if(t.charCodeAt(0)===0xFEFF)t=t.slice(1);
+    const startIdx=t.indexOf('{');
+    if(startIdx>=0)t=t.substring(startIdx);
+    const data=JSON.parse(t);
     applyImport(data);
   }catch(e){showToast('⚠️ சரியான backup text இல்ல — மறுபடியும் try பண்ணுங்க!');}
 }
 
 function applyImport(data){
-  if(!data.version){showToast('⚠️ Invalid backup!');return;}
+  // Accept any object that has at least one known data field (version check removed — too strict)
+  const hasData=data.transactions||data.outstanding||data.weekly||data.prayer||data.profile||data.banks;
+  if(!hasData){showToast('⚠️ Backup data இல்ல — சரியான file போடுங்க!');return;}
   if(data.transactions){transactions=data.transactions;localStorage.setItem('exp_tx',JSON.stringify(transactions));}
   if(data.outstanding){outstanding=data.outstanding;localStorage.setItem('exp_out',JSON.stringify(outstanding));}
   if(data.weekly){weeklyData=data.weekly;localStorage.setItem('exp_weekly',JSON.stringify(weeklyData));}
   if(data.prayer){prayerData=data.prayer;localStorage.setItem('exp_prayer',JSON.stringify(prayerData));}
-  if(data.profile){profileData=data.profile;localStorage.setItem('exp_profile',JSON.stringify(profileData));}
+  if(data.profile){
+    // Preserve existing profile pic if backup has none
+    const existingPic=profileData.pic||'';
+    profileData={...data.profile};
+    if(!profileData.pic&&existingPic)profileData.pic=existingPic;
+    localStorage.setItem('exp_profile',JSON.stringify(profileData));
+  }
   if(data.banks){bankAccounts=data.banks;localStorage.setItem('exp_banks',JSON.stringify(bankAccounts));}
   if(data.documents){documents=data.documents;localStorage.setItem('exp_docs',JSON.stringify(documents));}
   renderAll();loadProfile();
-  showToast('✅ எல்லா data-உம் திரும்ப வந்துச்சு!');
+  const count=data.transactions?data.transactions.length:0;
+  showToast('✅ Restore ஆச்சு! '+count+' transactions வந்துச்சு.');
 }
 
 // ============================================================
