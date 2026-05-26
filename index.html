@@ -289,9 +289,58 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
 .pdf-box-arrow{font-size:1.1rem;color:#9ca3af;flex-shrink:0;}
 
 #reportCanvas{display:none;}
+
+/* PIN SCREEN */
+#pinScreen{position:fixed;inset:0;background:linear-gradient(160deg,#1e40af 0%,#2563eb 60%,#3b82f6 100%);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;}
+#pinScreen.hide{display:none;}
+.pin-logo{width:76px;height:76px;background:#fff;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:0 8px 32px rgba(0,0,0,0.18);margin-bottom:1rem;}
+.pin-title{font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:4px;}
+.pin-sub{font-size:0.78rem;color:rgba(255,255,255,0.75);margin-bottom:2rem;text-align:center;}
+.pin-dots{display:flex;gap:14px;margin-bottom:2rem;}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.6);background:transparent;transition:all 0.2s;}
+.pin-dot.filled{background:#fff;border-color:#fff;}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px;}
+.pin-key{background:rgba(255,255,255,0.15);border:none;border-radius:16px;height:64px;font-size:1.5rem;font-weight:600;color:#fff;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.15s;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;}
+.pin-key:active{background:rgba(255,255,255,0.35);transform:scale(0.93);}
+.pin-key.del{font-size:1.2rem;}
+.pin-key.empty{background:transparent;pointer-events:none;}
+.pin-status{font-size:0.78rem;color:rgba(255,255,255,0.85);min-height:1.4rem;margin-bottom:0.5rem;text-align:center;}
+.pin-newbadge{background:rgba(255,255,255,0.18);border-radius:20px;padding:0.3rem 1rem;font-size:0.7rem;color:rgba(255,255,255,0.9);margin-bottom:1.5rem;font-weight:600;}
+.pin-skip{background:none;border:1.5px solid rgba(255,255,255,0.4);border-radius:12px;padding:0.65rem 1.5rem;color:rgba(255,255,255,0.85);font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:1rem;user-select:none;-webkit-tap-highlight-color:transparent;display:inline-block;text-align:center;}
 </style>
 </head>
 <body>
+
+
+<!-- PIN SCREEN -->
+<div id="pinScreen">
+  <div class="pin-logo">💰</div>
+  <div class="pin-title">Expense Tracker</div>
+  <div class="pin-sub" id="pinSubText">Phone number கடைசி 4 digits போடுங்க</div>
+  <div class="pin-newbadge" id="pinBadge" style="display:none;">🆕 புது PIN set பண்ணுங்க</div>
+  <div class="pin-status" id="pinStatus"></div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-keypad" id="pinKeypad">
+    <div class="pin-key" data-val="1">1</div>
+    <div class="pin-key" data-val="2">2</div>
+    <div class="pin-key" data-val="3">3</div>
+    <div class="pin-key" data-val="4">4</div>
+    <div class="pin-key" data-val="5">5</div>
+    <div class="pin-key" data-val="6">6</div>
+    <div class="pin-key" data-val="7">7</div>
+    <div class="pin-key" data-val="8">8</div>
+    <div class="pin-key" data-val="9">9</div>
+    <div class="pin-key empty"></div>
+    <div class="pin-key" data-val="0">0</div>
+    <div class="pin-key del" data-val="del">⌫</div>
+  </div>
+  <div class="pin-skip" id="pinSkipBtn">⏭ இல்லாம தொடரு</div>
+</div>
 
 <div id="splash">
   <div class="splash-icon">💰</div>
@@ -379,6 +428,7 @@ html,body{width:100%;overflow-x:hidden;background:var(--bg);color:var(--text);fo
       <div class="drawer-item" onclick="closeProfile();switchTab('docs')"><span class="di">📁</span>Documents</div>
       <div class="drawer-item" onclick="closeProfile();switchTab('outstanding')"><span class="di">🔔</span>Outstanding / Due</div>
       <div class="drawer-item" onclick="closeProfile();switchTab('settings')"><span class="di">⚙️</span>Settings & Backup</div>
+      <div class="drawer-item" onclick="changePin()"><span class="di">🔑</span>PIN மாத்து / Reset</div>
       <div class="drawer-divider"></div>
       <div class="drawer-item" onclick="closeProfile();downloadReportImage()"><span class="di">🖼️</span>Download Report Image</div>
       <div class="drawer-item" onclick="closeProfile();shareReportText()"><span class="di">📤</span>Share Report (WhatsApp)</div>
@@ -634,35 +684,211 @@ try {
   db = firebase.database();
 } catch(e) {}
 
-// PHONE NUMBER SETUP
-function startWithPhone() {
-  const phone = document.getElementById('phoneInput').value.trim();
-  const name = document.getElementById('nameInput').value.trim();
-  const statusEl = document.getElementById('loginStatus');
+// ============================================================
+// PIN SYSTEM
+// ============================================================
+let pinBuffer = '';
+let pinMode = 'enter'; // 'enter' | 'set' | 'confirm'
+let pinFirst = '';
 
-  if (!phone || phone.length < 10) {
-    statusEl.style.color = '#dc2626';
-    statusEl.textContent = '⚠️ சரியான 10 digit phone number போடுங்க!';
-    return;
+function initPinScreen(){
+  pinMode = 'enter';
+  document.getElementById('pinSubText').textContent = 'Phone number கடைசி 4 digits போடுங்க';
+  document.getElementById('pinBadge').style.display = 'none';
+  document.getElementById('pinStatus').textContent = '📱 Example: 918508153841 → 3841';
+  document.getElementById('pinStatus').style.color = 'rgba(255,255,255,0.7)';
+  pinBuffer = '';
+  updatePinDots();
+  setupPinTouch();
+}
+
+function setupPinTouch(){
+  // Use touchstart + click for max compatibility in WebView
+  const keypad = document.getElementById('pinKeypad');
+  if(!keypad) return;
+
+  function handleKey(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const el = e.target.closest('.pin-key');
+    if(!el || el.classList.contains('empty')) return;
+    const val = el.getAttribute('data-val');
+    if(!val) return;
+    // Visual feedback
+    el.style.background = 'rgba(255,255,255,0.4)';
+    setTimeout(()=>{ el.style.background = ''; }, 150);
+    if(val === 'del'){
+      pinDel();
+    } else {
+      pinKey(val);
+    }
   }
 
-  const phoneId = 'phone_91' + phone;
-  localStorage.setItem('exp_phone', phoneId);
-  if (name) {
-    profileData.name = name;
-    localStorage.setItem('exp_profile', JSON.stringify(profileData));
+  keypad.addEventListener('touchstart', handleKey, {passive: false});
+  keypad.addEventListener('click', handleKey);
+
+  // Skip button
+  const skipBtn = document.getElementById('pinSkipBtn');
+  if(skipBtn){
+    skipBtn.addEventListener('touchstart', function(e){ e.preventDefault(); pinSkip(); }, {passive: false});
+    skipBtn.addEventListener('click', pinSkip);
   }
-  userPhone = phoneId;
+}
+
+function pinKey(d){
+  if(pinBuffer.length >= 4) return;
+  pinBuffer += d;
+  updatePinDots();
+  if(pinBuffer.length === 4){
+    if(pinMode === 'confirm'){
+      setTimeout(()=>processPinConfirm(), 150);
+    } else {
+      setTimeout(()=>processPinInput(), 150);
+    }
+  }
+}
+
+function pinDel(){
+  if(pinBuffer.length > 0){
+    pinBuffer = pinBuffer.slice(0, -1);
+    updatePinDots();
+    document.getElementById('pinStatus').textContent = '';
+  }
+}
+
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    const dot = document.getElementById('pd'+i);
+    dot.className = 'pin-dot' + (i < pinBuffer.length ? ' filled' : '');
+  }
+}
+
+function processPinInput(){
+  // 4 digits entered — map to phone_91XXXXXXXX format
+  // User enters last 4 digits of their phone number
+  // We search Firebase for any key ending with those 4 digits
+  const last4 = pinBuffer;
+  const enteredPin = pinBuffer;
+
+  document.getElementById('pinStatus').style.color = 'rgba(255,255,255,0.85)';
+  document.getElementById('pinStatus').textContent = '🔄 உங்கள் data தேடுகிறோம்...';
+
+  if(db){
+    // Check all users to find matching last 4 digits
+    db.ref('users').once('value').then(snap => {
+      const allUsers = snap.val() || {};
+      let matchedKey = null;
+
+      // Find key whose last 4 chars match entered digits
+      Object.keys(allUsers).forEach(key => {
+        if(key.slice(-4) === last4){
+          matchedKey = key;
+        }
+      });
+
+      if(matchedKey){
+        // Found existing account
+        localStorage.setItem('exp_pin', last4);
+        localStorage.setItem('exp_phone', matchedKey);
+        userPhone = matchedKey;
+        document.getElementById('pinStatus').style.color = '#86efac';
+        document.getElementById('pinStatus').textContent = '✅ Data கிடைச்சது! உள்ளே போகிறோம்...';
+        setTimeout(()=>enterApp(), 700);
+      } else {
+        // No existing account — create new with phone_91 + last4 pattern
+        // Ask user to confirm this is a new account
+        pinFirst = last4;
+        pinMode = 'confirm';
+        pinBuffer = '';
+        updatePinDots();
+        document.getElementById('pinSubText').textContent = '🆕 புது account — மறுபடியும் confirm பண்ணுங்க';
+        document.getElementById('pinBadge').style.display = 'block';
+        document.getElementById('pinStatus').textContent = 'புது account create ஆகும்';
+        document.getElementById('pinStatus').style.color = 'rgba(255,255,255,0.8)';
+      }
+    }).catch(()=>{
+      // Offline fallback
+      const savedPin = localStorage.getItem('exp_pin');
+      const savedPhone = localStorage.getItem('exp_phone');
+      if(savedPin && enteredPin === savedPin && savedPhone){
+        userPhone = savedPhone;
+        document.getElementById('pinStatus').style.color = '#86efac';
+        document.getElementById('pinStatus').textContent = '✅ Offline — உள்ளே போகிறோம்';
+        setTimeout(()=>enterApp(), 600);
+      } else {
+        document.getElementById('pinStatus').style.color = '#fca5a5';
+        document.getElementById('pinStatus').textContent = '⚠️ Internet இல்ல — WiFi போட்டு try பண்ணுங்க';
+        pinBuffer = '';
+        updatePinDots();
+      }
+    });
+  } else {
+    // No Firebase init
+    const savedPin = localStorage.getItem('exp_pin');
+    const savedPhone = localStorage.getItem('exp_phone');
+    if(savedPin && enteredPin === savedPin && savedPhone){
+      userPhone = savedPhone;
+      document.getElementById('pinStatus').style.color = '#86efac';
+      document.getElementById('pinStatus').textContent = '✅ Welcome!';
+      setTimeout(()=>enterApp(), 400);
+    } else {
+      document.getElementById('pinStatus').style.color = '#fca5a5';
+      document.getElementById('pinStatus').textContent = '❌ தப்பான digits — மறுபடியும் try பண்ணுங்க';
+      pinBuffer = '';
+      updatePinDots();
+    }
+  }
+}
+
+function processPinConfirm(){
+  // Called when confirming new account creation
+  if(pinBuffer === pinFirst){
+    const newKey = 'phone_91' + pinFirst;
+    localStorage.setItem('exp_pin', pinFirst);
+    localStorage.setItem('exp_phone', newKey);
+    userPhone = newKey;
+    document.getElementById('pinStatus').style.color = '#86efac';
+    document.getElementById('pinStatus').textContent = '✅ Account create ஆச்சு!';
+    setTimeout(()=>enterApp(), 700);
+  } else {
+    document.getElementById('pinStatus').style.color = '#fca5a5';
+    document.getElementById('pinStatus').textContent = '❌ Digits match ஆகல — மறுபடியும்';
+    pinBuffer = '';
+    updatePinDots();
+    setTimeout(()=>{
+      pinMode = 'enter';
+      pinFirst = '';
+      document.getElementById('pinSubText').textContent = 'Phone number கடைசி 4 digits போடுங்க';
+      document.getElementById('pinBadge').style.display = 'none';
+      document.getElementById('pinStatus').textContent = '📱 Example: 918508153841 → 3841';
+      document.getElementById('pinStatus').style.color = 'rgba(255,255,255,0.7)';
+    }, 1600);
+  }
+}
+
+function pinSkip(){
+  // Skip PIN — use locally stored key or guest
+  userPhone = localStorage.getItem('exp_phone') || null;
+  enterApp();
+}
+
+function enterApp(){
+  document.getElementById('pinScreen').classList.add('hide');
   launchApp();
   pullData();
 }
 
+function changePin(){
+  localStorage.removeItem('exp_pin');
+  localStorage.removeItem('exp_phone');
+  location.reload();
+}
+
 function signOut() {
-  if(confirm('Data clear பண்ணி வேற number-ல switch பண்ணவா?')) {
-    localStorage.removeItem('exp_phone');
+  if(confirm('PIN reset பண்ணி data clear பண்ணவா?')) {
+    localStorage.clear();
     location.reload();
   }
-  closeDrawer();
 }
 
 function setSyncStatus(status){
@@ -756,8 +982,8 @@ function launchApp(){
 
 // AUTO START — always launch directly
 window.addEventListener('DOMContentLoaded', function(){
-  launchApp();
-  setTimeout(()=>{pullData();loadProfile();renderAll();renderPdfBoxes();}, 2000);
+  initPinScreen();
+  setTimeout(()=>{loadProfile();renderAll();renderPdfBoxes();}, 2200);
 });
 
 // ============================================================
