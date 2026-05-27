@@ -520,7 +520,7 @@
 </div>
 
 <script>
-  const UPI_ID = "ajeezsadiq1198-1@okhdfcbank";
+  const UPI_ID = "ajeezsadiq1198-1@okicici";
   const UPI_NAME = "Ajeez Sadiq";
 
   let selectedAmount = 100;
@@ -542,7 +542,7 @@
       return;
     }
 
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Donation')}`;
+    const upiLink = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent('Donation')}&mode=00&purpose=00`;
     window.location.href = upiLink;
   }
 
