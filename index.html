@@ -1,48 +1,101 @@
 
 <!DOCTYPE html>
-<html lang="ta">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Donate & Support</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <title>Sadaqah - Donate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     :root {
       --gold: #c9a84c;
       --gold-light: #f0d080;
-      --dark: #0d0d0d;
-      --card: #161616;
-      --card2: #1e1e1e;
-      --text: #f0ece4;
-      --muted: #888;
+      --bg: #0a0a0a;
+      --card: #131313;
+      --card2: #1c1c1c;
+      --border: #242424;
+      --text: #ede9e0;
+      --muted: #777;
       --accent: #e8c96a;
+      --input-bg: #0a0a0a;
+      --input-prefix: #111;
+      --input-border: #2c2c2c;
+      --verse-bg: #111;
+      --modal-bg: #1c1c1c;
+      --cancel-bg: #1e1e1e;
+      --empty-color: #3a3a3a;
+    }
+
+    body.light {
+      --gold: #b8892a;
+      --gold-light: #c9960e;
+      --bg: #f5f2eb;
+      --card: #ffffff;
+      --card2: #f0ece3;
+      --border: #e0d8c8;
+      --text: #1a1a1a;
+      --muted: #999;
+      --accent: #9a6e10;
+      --input-bg: #f9f6f0;
+      --input-prefix: #ece8df;
+      --input-border: #ddd5c0;
+      --verse-bg: #faf7f0;
+      --modal-bg: #ffffff;
+      --cancel-bg: #f0ece3;
+      --empty-color: #bbb;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: var(--dark);
+      background: var(--bg);
       color: var(--text);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
     }
 
-    /* Background grain */
-    body::before {
+    body::after {
       content: '';
       position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
-      opacity: 0.5;
     }
 
+    /* THEME TOGGLE */
+    .theme-toggle {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 200;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+    .theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
     .container {
-      max-width: 480px;
+      max-width: 460px;
       margin: 0 auto;
-      padding: 0 20px 80px;
+      padding: 0 18px 80px;
       position: relative;
       z-index: 1;
     }
@@ -50,146 +103,206 @@
     /* HEADER */
     .header {
       text-align: center;
-      padding: 50px 0 30px;
-      animation: fadeDown 0.8s ease both;
+      padding: 52px 0 20px;
+      animation: fadeDown 0.7s ease both;
     }
 
     .header .icon {
-      font-size: 48px;
+      font-size: 46px;
       display: block;
-      margin-bottom: 12px;
-      animation: pulse 2.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 12px rgba(201,168,76,0.4));
     }
 
     .header h1 {
-      font-family: 'Playfair Display', serif;
       font-size: 2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 60%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      line-height: 1.2;
     }
 
-    .header p {
-      margin-top: 10px;
+    /* VERSE BOX */
+    .verse-box {
+      background: var(--verse-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px 18px;
+      margin-top: 18px;
+      text-align: center;
+      animation: fadeDown 0.7s ease 0.1s both;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .verse-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .verse-arabic {
+      font-size: 1.18rem;
+      line-height: 2.2;
+      direction: rtl;
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    .verse-tamil {
+      font-size: 0.8rem;
       color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.6;
+      margin-top: 10px;
+      line-height: 1.75;
     }
 
-    /* MONTHLY SUBSCRIPTION */
+    .verse-ref {
+      display: inline-block;
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 8px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2px 10px;
+      transition: border-color 0.3s;
+    }
+
+    /* DIVIDER */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 26px 0 14px;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+
     .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1rem;
+      font-size: 0.7rem;
+      font-weight: 600;
       color: var(--gold);
       letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 14px;
-      margin-top: 30px;
-      animation: fadeUp 0.8s ease 0.2s both;
+      white-space: nowrap;
     }
 
+    /* PLAN GRID */
     .plan-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
-      animation: fadeUp 0.8s ease 0.3s both;
+      animation: fadeUp 0.7s ease 0.2s both;
     }
 
     .plan-card {
       background: var(--card);
-      border: 1px solid #2a2a2a;
+      border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 16px 10px;
+      padding: 18px 8px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.22s ease;
       position: relative;
     }
 
-    .plan-card:hover {
-      border-color: var(--gold);
-      transform: translateY(-2px);
-    }
+    .plan-card:hover { border-color: rgba(201,168,76,0.5); transform: translateY(-3px); }
 
     .plan-card.selected {
       border-color: var(--gold);
-      background: linear-gradient(135deg, #1e1a0e, #1a1600);
-      box-shadow: 0 0 20px rgba(201,168,76,0.2);
+      background: linear-gradient(160deg, #1d1800, #161200);
+      box-shadow: 0 0 22px rgba(201,168,76,0.14), inset 0 1px 0 rgba(201,168,76,0.2);
+    }
+
+    body.light .plan-card.selected {
+      background: linear-gradient(160deg, #fff8e6, #fff3d0);
+      box-shadow: 0 0 18px rgba(201,168,76,0.18);
     }
 
     .plan-card .badge {
       position: absolute;
-      top: -10px;
+      top: -9px;
       left: 50%;
       transform: translateX(-50%);
       background: var(--gold);
       color: #000;
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 2px 9px;
       border-radius: 20px;
-      white-space: nowrap;
+      letter-spacing: 0.5px;
     }
 
     .plan-card .amount {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      font-weight: 800;
+      font-size: 1.35rem;
+      font-weight: 700;
       color: var(--accent);
+      letter-spacing: -0.5px;
     }
 
     .plan-card .label {
-      font-size: 0.7rem;
+      font-size: 0.67rem;
       color: var(--muted);
       margin-top: 4px;
     }
 
-    /* CUSTOM AMOUNT */
-    .custom-box {
+    /* INPUT CARD */
+    .input-card {
       background: var(--card);
-      border: 1px solid #2a2a2a;
-      border-radius: 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
       padding: 18px;
       margin-top: 12px;
-      animation: fadeUp 0.8s ease 0.4s both;
+      animation: fadeUp 0.7s ease 0.3s both;
+      transition: background 0.3s, border-color 0.3s;
     }
 
-    .custom-box label {
-      font-size: 0.8rem;
+    .input-card > label {
+      font-size: 0.72rem;
+      font-weight: 500;
       color: var(--muted);
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .input-wrap {
       display: flex;
       align-items: center;
-      background: #0d0d0d;
-      border: 1px solid #333;
-      border-radius: 10px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 11px;
       overflow: hidden;
-      transition: border 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 10px;
     }
+
+    .input-wrap:last-child { margin-bottom: 0; }
 
     .input-wrap:focus-within {
       border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
     }
 
     .input-wrap span {
-      padding: 12px 14px;
+      padding: 13px 15px;
       color: var(--gold);
-      font-weight: 700;
-      font-size: 1.1rem;
-      background: #111;
-      border-right: 1px solid #2a2a2a;
+      font-size: 0.95rem;
+      background: var(--input-prefix);
+      border-right: 1px solid var(--input-border);
+      font-weight: 600;
+      min-width: 46px;
+      text-align: center;
+      transition: background 0.3s;
     }
 
     .input-wrap input {
@@ -198,78 +311,92 @@
       border: none;
       outline: none;
       color: var(--text);
-      font-size: 1.1rem;
-      padding: 12px 14px;
-      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      padding: 13px 14px;
+      font-family: inherit;
+      font-weight: 500;
     }
+
+    .input-wrap input::placeholder { color: var(--muted); font-weight: 400; opacity: 0.5; }
 
     /* DONATE BUTTON */
     .donate-btn {
       width: 100%;
-      padding: 18px;
-      background: linear-gradient(135deg, var(--gold), #a07830);
+      padding: 17px;
+      background: linear-gradient(135deg, #d4a93a 0%, #a07020 100%);
       border: none;
       border-radius: 14px;
       color: #000;
       font-size: 1rem;
       font-weight: 700;
+      letter-spacing: 0.2px;
       cursor: pointer;
-      margin-top: 18px;
-      letter-spacing: 0.5px;
-      transition: all 0.25s ease;
-      font-family: 'DM Sans', sans-serif;
+      margin-top: 14px;
+      transition: all 0.22s ease;
+      font-family: inherit;
+      animation: fadeUp 0.7s ease 0.4s both;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.2);
       position: relative;
       overflow: hidden;
-      animation: fadeUp 0.8s ease 0.5s both;
     }
 
-    .donate-btn::after {
+    .donate-btn::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-      opacity: 0;
-      transition: opacity 0.2s;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
     }
 
-    .donate-btn:hover::after { opacity: 1; }
-    .donate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,0.3); }
+    .donate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(201,168,76,0.32); }
     .donate-btn:active { transform: scale(0.98); }
 
-    /* TOTAL STATS */
+    .upi-note {
+      text-align: center;
+      font-size: 0.68rem;
+      color: var(--muted);
+      opacity: 0.5;
+      margin-top: 9px;
+      letter-spacing: 0.5px;
+    }
+
+    /* STATS */
     .stats-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 30px;
-      animation: fadeUp 0.8s ease 0.6s both;
+      gap: 10px;
+      margin-top: 26px;
+      animation: fadeUp 0.7s ease 0.5s both;
     }
 
     .stat-card {
       background: var(--card);
-      border: 1px solid #2a2a2a;
+      border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 18px;
+      padding: 18px 16px;
       text-align: center;
+      transition: background 0.3s, border-color 0.3s;
     }
 
-    .stat-card .stat-value {
-      font-family: 'Playfair Display', serif;
+    .stat-value {
       font-size: 1.6rem;
-      font-weight: 800;
+      font-weight: 700;
       color: var(--accent);
+      letter-spacing: -0.5px;
     }
 
-    .stat-card .stat-label {
-      font-size: 0.72rem;
+    .stat-label {
+      font-size: 0.68rem;
+      font-weight: 500;
       color: var(--muted);
-      margin-top: 4px;
+      margin-top: 5px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     /* DONOR LIST */
     .donor-section {
-      margin-top: 30px;
-      animation: fadeUp 0.8s ease 0.7s both;
+      margin-top: 26px;
+      animation: fadeUp 0.7s ease 0.6s both;
     }
 
     .donor-header {
@@ -279,69 +406,66 @@
       margin-bottom: 14px;
     }
 
-    .add-donor-btn {
+    .admin-btn {
       background: transparent;
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      padding: 6px 14px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 14px;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
+      font-weight: 500;
       cursor: pointer;
+      font-family: inherit;
       transition: all 0.2s;
-      font-family: 'DM Sans', sans-serif;
     }
 
-    .add-donor-btn:hover {
-      background: var(--gold);
-      color: #000;
-    }
+    .admin-btn:hover { border-color: var(--gold); color: var(--gold); }
 
     .donor-card {
       background: var(--card);
-      border: 1px solid #2a2a2a;
+      border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 10px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 14px;
-      transition: border 0.2s;
-      animation: slideIn 0.4s ease both;
+      gap: 13px;
+      transition: background 0.3s, border-color 0.2s;
+      animation: slideIn 0.35s ease both;
     }
 
     @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-12px); }
-      to { opacity: 1; transform: translateX(0); }
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .donor-card:hover { border-color: #3a3a3a; }
-
     .donor-avatar {
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--gold), #6b4c1e);
+      background: linear-gradient(135deg, var(--gold) 0%, #7a5520 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       font-weight: 700;
       color: #000;
       flex-shrink: 0;
     }
 
-    .donor-info { flex: 1; }
-    .donor-name { font-weight: 500; font-size: 0.9rem; }
-    .donor-note { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .donor-info { flex: 1; min-width: 0; }
+    .donor-name { font-weight: 600; font-size: 0.88rem; }
+    .donor-note { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
 
     .donor-amount {
-      font-family: 'Playfair Display', serif;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
       color: var(--accent);
+      letter-spacing: -0.3px;
+      white-space: nowrap;
     }
 
-    /* ADD DONOR MODAL */
+    /* MODAL */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -350,46 +474,53 @@
       z-index: 100;
       align-items: flex-end;
       justify-content: center;
+      backdrop-filter: blur(4px);
     }
 
     .modal-overlay.open { display: flex; }
 
     .modal {
-      background: var(--card2);
-      border-radius: 24px 24px 0 0;
-      padding: 28px 24px 40px;
+      background: var(--modal-bg);
+      border-radius: 22px 22px 0 0;
+      padding: 28px 22px 42px;
       width: 100%;
-      max-width: 480px;
-      animation: slideUp 0.35s ease;
+      max-width: 460px;
+      border-top: 1px solid rgba(201,168,76,0.2);
+      animation: slideUp 0.32s ease;
+      transition: background 0.3s;
     }
 
     @keyframes slideUp {
       from { transform: translateY(100%); }
-      to { transform: translateY(0); }
+      to   { transform: translateY(0); }
     }
 
     .modal h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
+      font-size: 1rem;
+      font-weight: 700;
       color: var(--gold);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
-    .modal input, .modal textarea {
+    .modal input {
       width: 100%;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 10px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 11px;
       color: var(--text);
-      padding: 12px 14px;
+      padding: 13px 14px;
       font-size: 0.9rem;
-      font-family: 'DM Sans', sans-serif;
-      margin-bottom: 12px;
+      font-family: inherit;
+      font-weight: 500;
+      margin-bottom: 10px;
       outline: none;
-      transition: border 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .modal input:focus, .modal textarea:focus { border-color: var(--gold); }
+    .modal input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
+    }
 
     .modal-btns { display: flex; gap: 10px; margin-top: 6px; }
 
@@ -401,54 +532,54 @@
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
+      font-family: inherit;
       transition: all 0.2s;
     }
 
-    .btn-cancel { background: #222; color: var(--muted); }
-    .btn-add { background: var(--gold); color: #000; }
-    .btn-add:hover { opacity: 0.9; }
-
-    /* UPI INFO */
-    .upi-note {
-      text-align: center;
-      font-size: 0.72rem;
-      color: #555;
-      margin-top: 14px;
-    }
-
-    /* ANIMATIONS */
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .btn-cancel { background: var(--cancel-bg); color: var(--muted); }
+    .btn-save   { background: var(--gold); color: #000; }
+    .btn-save:hover { opacity: 0.9; }
 
     .empty-state {
       text-align: center;
-      color: var(--muted);
-      font-size: 0.85rem;
-      padding: 30px 0;
+      color: var(--empty-color);
+      font-size: 0.83rem;
+      padding: 32px 0;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+
 <div class="container">
 
   <!-- HEADER -->
   <div class="header">
-    <span class="icon">🤲</span>
-    <h1>Support Our Cause</h1>
-    <p>உங்கள் ஒவ்வொரு donation-உம் ஒரு மாற்றத்தை உருவாக்குகிறது.<br>Every rupee counts.</p>
+    <span class="icon">☪️</span>
+    <h1>Sadaqah</h1>
+    <div class="verse-box">
+      <div class="verse-arabic">مَثَلُ الَّذِينَ يُنفِقُونَ أَمْوَالَهُمْ فِي سَبِيلِ اللَّهِ كَمَثَلِ حَبَّةٍ أَنبَتَتْ سَبْعَ سَنَابِلَ</div>
+      <div class="verse-tamil">அல்லாஹ்வின் பாதையில் தங்கள் செல்வங்களை செலவழிப்பவர்களின் உதாரணம் ஒரு தானியம் போன்றது — அது ஏழு கதிர்களை முளைக்கச் செய்கிறது.</div>
+      <span class="verse-ref">அல்-பகரா 2:261</span>
+    </div>
   </div>
 
-  <!-- MONTHLY PLANS -->
-  <div class="section-title">Monthly Subscription</div>
+  <!-- MONTHLY PLAN -->
+  <div class="divider"><span class="section-title">Monthly Subscription</span></div>
   <div class="plan-grid">
     <div class="plan-card" onclick="selectPlan(this, 50)">
       <div class="amount">₹50</div>
@@ -465,22 +596,24 @@
     </div>
   </div>
 
-  <!-- CUSTOM AMOUNT -->
-  <div class="custom-box">
-    <label>Or enter any amount you wish ✨</label>
+  <!-- NAME + AMOUNT -->
+  <div class="input-card">
+    <label>Enter your name & amount</label>
+    <div class="input-wrap">
+      <span>👤</span>
+      <input type="text" id="donorNameInput" placeholder="Your name" />
+    </div>
     <div class="input-wrap">
       <span>₹</span>
-      <input type="number" id="customAmount" placeholder="Enter amount" min="1"/>
+      <input type="number" id="customAmount" placeholder="Any amount you wish" min="1"/>
     </div>
   </div>
 
   <!-- DONATE BUTTON -->
-  <button class="donate-btn" onclick="donate()">
-    🙏 Donate Now via UPI
-  </button>
-  <p class="upi-note">Powered by Google Pay / PhonePe / Any UPI App</p>
+  <button class="donate-btn" onclick="donate()">🤲 Sadaqah Now via UPI</button>
+  <p class="upi-note">Google Pay &nbsp;•&nbsp; PhonePe &nbsp;•&nbsp; Any UPI App</p>
 
-  <!-- TOTAL STATS -->
+  <!-- STATS -->
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-value" id="totalAmount">₹0</div>
@@ -495,36 +628,51 @@
   <!-- DONOR LIST -->
   <div class="donor-section">
     <div class="donor-header">
-      <div class="section-title" style="margin:0">Donors 🌟</div>
-      <button class="add-donor-btn" onclick="openModal()">+ Add Donor</button>
+      <div class="divider" style="flex:1;margin:0 12px 0 0"><span class="section-title">Donors 🌙</span></div>
+      <button class="admin-btn" onclick="adminLogin()">⚙ Admin</button>
     </div>
     <div id="donorList">
-      <div class="empty-state">No donors yet. Be the first! 💛</div>
+      <div class="empty-state">No donors yet — be the first! 🤲</div>
     </div>
   </div>
 
 </div>
 
-<!-- ADD DONOR MODAL -->
-<div class="modal-overlay" id="modalOverlay">
+<!-- ADMIN MODAL -->
+<div class="modal-overlay" id="adminModal">
   <div class="modal">
-    <h3>Add Donor Details</h3>
-    <input type="text" id="donorName" placeholder="Donor Name" />
-    <input type="number" id="donorAmt" placeholder="Amount (₹)" min="1"/>
-    <input type="text" id="donorNote" placeholder="Note (optional)" />
+    <h3>⚙ Admin — Add Donor</h3>
+    <input type="text"    id="adName" placeholder="Donor Name" />
+    <input type="number"  id="adAmt"  placeholder="Amount (₹)" min="1"/>
+    <input type="text"    id="adNote" placeholder="Note (optional)" />
     <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-add" onclick="addDonor()">Add ✓</button>
+      <button class="btn-cancel" onclick="closeAdmin()">Cancel</button>
+      <button class="btn-save"   onclick="adminAddDonor()">Add ✓</button>
     </div>
   </div>
 </div>
 
 <script>
-  const UPI_ID = "mdsubair99-2@oksbi";
-  const UPI_NAME = "ALWAI DAWAH MEDIA";
+  const UPI_ID     = "mdsubair99-2@oksbi";
+  const UPI_NAME   = "Md Subair";
+  const ADMIN_PASS = "admin123";
 
   let selectedAmount = 100;
-  let donors = JSON.parse(localStorage.getItem('donors') || '[]');
+  let donors = JSON.parse(localStorage.getItem('sadaqah_donors') || '[]');
+  let isLight = localStorage.getItem('sadaqah_theme') === 'light';
+
+  // Apply saved theme
+  if (isLight) {
+    document.body.classList.add('light');
+    document.getElementById('themeBtn').textContent = '☀️ Light';
+  }
+
+  function toggleTheme() {
+    isLight = !isLight;
+    document.body.classList.toggle('light', isLight);
+    document.getElementById('themeBtn').textContent = isLight ? '☀️ Light' : '🌙 Dark';
+    localStorage.setItem('sadaqah_theme', isLight ? 'light' : 'dark');
+  }
 
   function selectPlan(el, amount) {
     document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
@@ -534,67 +682,84 @@
   }
 
   function donate() {
+    const name   = document.getElementById('donorNameInput').value.trim();
     const custom = document.getElementById('customAmount').value;
     const amount = custom ? parseFloat(custom) : selectedAmount;
 
-    if (!amount || amount < 1) {
-      alert('Please enter a valid amount!');
-      return;
+    if (!name)                 { alert('Please enter your name!');         return; }
+    if (!amount || amount < 1) { alert('Please enter a valid amount!');    return; }
+
+    const upiParams = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent("Sadaqah")}`;
+
+    // Try GPay first, fallback to generic UPI
+    const gpayLink = `gpay://upi/pay?${upiParams}`;
+    const upiLink  = `upi://pay?${upiParams}`;
+
+    const isAndroid = /android/i.test(navigator.userAgent);
+    if (isAndroid) {
+      window.location.href = gpayLink;
+      setTimeout(() => { window.location.href = upiLink; }, 800);
+    } else {
+      window.location.href = upiLink;
     }
 
-    const upiLink = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent('Donation')}&mode=00&purpose=00`;
-    window.location.href = upiLink;
+    setTimeout(() => {
+      donors.unshift({ name, amt: amount, note: '', date: new Date().toLocaleDateString('en-IN') });
+      localStorage.setItem('sadaqah_donors', JSON.stringify(donors));
+      renderDonors();
+      document.getElementById('donorNameInput').value = '';
+      document.getElementById('customAmount').value   = '';
+    }, 1500);
   }
 
-  function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
-  function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('open');
-    document.getElementById('donorName').value = '';
-    document.getElementById('donorAmt').value = '';
-    document.getElementById('donorNote').value = '';
-  }
-
-  function addDonor() {
-    const name = document.getElementById('donorName').value.trim();
-    const amt = parseFloat(document.getElementById('donorAmt').value);
-    const note = document.getElementById('donorNote').value.trim();
-
-    if (!name || !amt || amt < 1) {
-      alert('Please fill name and amount!');
-      return;
+  function adminLogin() {
+    const pass = prompt('Admin Password:');
+    if (pass === ADMIN_PASS) {
+      document.getElementById('adminModal').classList.add('open');
+    } else if (pass !== null) {
+      alert('Wrong password!');
     }
+  }
 
-    donors.unshift({ name, amt, note, date: new Date().toLocaleDateString('ta-IN') });
-    localStorage.setItem('donors', JSON.stringify(donors));
-    closeModal();
+  function closeAdmin() {
+    document.getElementById('adminModal').classList.remove('open');
+    ['adName','adAmt','adNote'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function adminAddDonor() {
+    const name = document.getElementById('adName').value.trim();
+    const amt  = parseFloat(document.getElementById('adAmt').value);
+    const note = document.getElementById('adNote').value.trim();
+    if (!name || !amt || amt < 1) { alert('Name and amount required!'); return; }
+    donors.unshift({ name, amt, note, date: new Date().toLocaleDateString('en-IN') });
+    localStorage.setItem('sadaqah_donors', JSON.stringify(donors));
+    closeAdmin();
     renderDonors();
   }
 
   function renderDonors() {
-    const list = document.getElementById('donorList');
+    const list  = document.getElementById('donorList');
     const total = donors.reduce((s, d) => s + d.amt, 0);
     document.getElementById('totalAmount').textContent = '₹' + total.toLocaleString('en-IN');
     document.getElementById('totalDonors').textContent = donors.length;
 
     if (donors.length === 0) {
-      list.innerHTML = '<div class="empty-state">No donors yet. Be the first! 💛</div>';
+      list.innerHTML = '<div class="empty-state">No donors yet — be the first! 🤲</div>';
       return;
     }
 
-    list.innerHTML = donors.map((d, i) => `
-      <div class="donor-card" style="animation-delay:${i * 0.05}s">
+    list.innerHTML = donors.map(d => `
+      <div class="donor-card">
         <div class="donor-avatar">${d.name.charAt(0).toUpperCase()}</div>
         <div class="donor-info">
           <div class="donor-name">${d.name}</div>
           <div class="donor-note">${d.note || d.date}</div>
         </div>
         <div class="donor-amount">₹${d.amt.toLocaleString('en-IN')}</div>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
 
   renderDonors();
 </script>
-
 </body>
 </html>
